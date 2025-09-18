@@ -80,10 +80,9 @@ def write_grid(input):
     # return make_grid_csv_quoted(input)
 
 
-
 if __name__ == "__main__":
     # TODO
     # make a grid here
-    arr = np.array([[0, 1, 2], [3, 4, 5], [6, 7, 8]])        
+    arr = np.array([[0, 1, 2], [3, 4, 5], [6, 7, 8]])
     # call each method and print the name and output
     print(make_grid_plain(arr))
