@@ -1,13 +1,13 @@
-Jinja2
+Jinja2==3.1.6
 ipython==9.4.0
 numpy==2.2.5
-black
-pytest
 joblib==1.4.2
 dill==0.3.8
 litellm==1.74.4
 dotenv
-isort
+pytest
+isort==6.0.1
+ruff==0.13.0
 pytest-cov
 pandas==2.3.0
 scipy==1.15.3

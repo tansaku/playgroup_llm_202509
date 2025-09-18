@@ -1,4 +1,18 @@
 repos:
+  # isort
+  - repo: https://github.com/PyCQA/isort
+    rev: 6.0.1
+    hooks:
+      - id: isort
+
+  # ruff
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.13.0
+    hooks:
+      - id: ruff
+      - id: ruff-format
+
+  # local pytest hook
   - repo: local
     hooks:
       - id: pytest
