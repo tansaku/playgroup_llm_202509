@@ -1,6 +1,14 @@
 # playgroup_llm_202509
 
 
+# Walkthrough
+
+* `python method1_text_prompt.py -p 0d3d703e -i 5` # run method1 with the default prompt on an easy problem for 5 iterations
+  * equivalent to the fully formed `python method1_text_prompt.py -p 0d3d703e -t baseline.j2 -m openrouter/deepseek/deepseek-chat-v3-0324 -i 5`
+
+
+# Setup notes
+
 
 ## Setup notes by Ian for Ian
 

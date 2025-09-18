@@ -7,10 +7,11 @@ import logging
 from collections import Counter
 from datetime import datetime
 
+from dotenv import load_dotenv
+
 # from litellm import completion
 import utils
 from config import BREAK_IF_NOT_CHECKED_IN, providers
-from dotenv import load_dotenv
 from litellm_helper import call_llm, check_litellm_key, disable_litellm_logging
 from prompt import get_func_dict, make_prompt
 from run_code import execute_transform
@@ -24,16 +25,21 @@ load_dotenv()
 
 
 def run_experiment(model, provider, problems, messages, rr_trains, llm_responses):
-    response = call_llm(model, messages, provider)
-    assert response is not None, "No response from LLM after retries"
+    response, content = call_llm(model, messages, provider)
     llm_responses.append(response)
-    print(response)
-    print(response.choices[0].message.content)
+    # print(response)
+    # print(response.choices[0].message.content)
+    print(content)
 
-    code_as_string = extract_from_code_block(response.choices[0].message.content)
+    code_as_string = extract_from_code_block(content)
 
     train_problems = problems["train"]
     rr_train = execute_transform(code_as_string, train_problems)
+    # rr_train is a tuple of RunResult, ExecutionOutcome, exception_message
+    # rr_train[0].code_ran_on_all_inputs will be True if all train examples ran regardless of output quality
+    # rr_train[0].transform_ran_and_matched_for_all_inputs will be True if all train inputs were transformed correctly
+    if rr_train[0].transform_ran_and_matched_for_all_inputs:
+        breakpoint()
     print(rr_train)
     rr_trains.append(rr_train)
 
