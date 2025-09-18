@@ -3,23 +3,18 @@
 # the initial grid turns into the final grid?
 # BONUS can you make it write code that solves this?
 
-import argparse
 import logging
-import os
-import sys
-import time
 from collections import Counter
 from datetime import datetime
 
 # from litellm import completion
-import litellm
 import utils
 from config import BREAK_IF_NOT_CHECKED_IN, providers
 from dotenv import load_dotenv
 from litellm_helper import call_llm, check_litellm_key, disable_litellm_logging
 from prompt import get_func_dict, make_prompt
 from run_code import execute_transform
-from utils import add_argument_parser, extract_from_code_block
+from utils import extract_from_code_block
 
 logger = logging.getLogger("my_logger")
 logger.setLevel(logging.DEBUG)
@@ -29,7 +24,6 @@ load_dotenv()
 
 
 def run_experiment(model, provider, problems, messages, rr_trains, llm_responses):
-
     response = call_llm(model, messages, provider)
     assert response is not None, "No response from LLM after retries"
     llm_responses.append(response)
@@ -83,7 +77,7 @@ if __name__ == "__main__":
     check_litellm_key(args)
     utils.initial_log(logger, args)
     start_dt = datetime.now()
-    logger.info(f"Started experiment")
+    logger.info("Started experiment")
 
     # load a single problem
     problems = utils.get_examples(args.problem_name)
@@ -124,7 +118,7 @@ if __name__ == "__main__":
 
     print(
         f"Max token usage on a call was {max(all_token_usages):,}, "
-        f"Median token usage on a call was {sorted(all_token_usages)[int(len(all_token_usages)/2)]:,}"
+        f"Median token usage on a call was {sorted(all_token_usages)[int(len(all_token_usages) / 2)]:,}"
     )
     # print(f"Max token usage on a call was {max(all_token_usages)}")
     # print(

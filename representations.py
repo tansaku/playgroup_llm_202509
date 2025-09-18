@@ -85,4 +85,14 @@ if __name__ == "__main__":
     # make a grid here
     arr = np.array([[0, 1, 2], [3, 4, 5], [6, 7, 8]])
     # call each method and print the name and output
-    print(make_grid_plain(arr))
+    representations = [
+        make_grid_plain,
+        make_grid_csv,
+        make_grid_csv_quoted,
+        make_excel_description_of_example,
+        make_grid_csv_english_words,
+    ]
+    for representation in representations:
+        print(representation.__name__)
+        print(representation(arr))
+        print("\n")
