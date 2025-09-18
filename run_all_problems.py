@@ -59,15 +59,15 @@ if __name__ == "__main__":
     # https://arcprize.org/play?task=0d3d703e  # fixed colour mapping, 3x3 grid min
     # https://arcprize.org/play?task=08ed6ac7  # coloured in order of height, 9x9 grid min
     # https://arcprize.org/play?task=9565186b  # most frequent colour wins, 3x3 grid min
-    # https://arcprize.org/play?task=0a938d79  # dots form repeated coloured lines, 9x22 grid min
     # https://arcprize.org/play?task=178fcbfb  # dots form coloured lines, 9x9 grid min
+    # https://arcprize.org/play?task=0a938d79  # dots form repeated coloured lines, 9x22 grid min
     # https://arcprize.org/play?task=1a07d186  # dots attach to same coloured line, 14x15 grid min
     all_problems_to_run = [
-        "9565186b",
         "0d3d703e",
         "08ed6ac7",
-        "0a938d79",
+        "9565186b",
         "178fcbfb",
+        "0a938d79",
         "1a07d186",
     ]
     result_rr_trains = []  # list of lists of rr_trains for each problem
