@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def make_grid_plain(input):
     """Make 2D grid from list of lists"""
     return "\n".join(["".join(map(str, row)) for row in input])

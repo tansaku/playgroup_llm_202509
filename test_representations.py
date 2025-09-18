@@ -1,7 +1,6 @@
 from representations import make_grid_csv_english_words, make_grid_plain
 
 
-
 def test_make_grid_plain():
     """Test the make_grid_plain function"""
     # Test cases from test_utils.py
