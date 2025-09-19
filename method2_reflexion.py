@@ -1,11 +1,10 @@
 # GOAL
-# Can you make a generic prompt that correctly describes the rules governgin how
-# the initial grid turns into the final grid?
-# BONUS can you make it write code that solves this?
+# Reflexion asks a model to reflect and improve
+# This variant removes the code implementations that hadn't helped but
+# keeps the explanations that were wrong, to steer it
+# Is there another way to get closer to the right solution?
 
-import logging
 from datetime import datetime
-from pprint import pprint
 
 # from litellm import completion
 from dotenv import load_dotenv
@@ -13,7 +12,7 @@ from dotenv import load_dotenv
 import analysis
 import utils
 from config import providers
-from db import make_db
+from db import make_db, record_run
 from litellm_helper import call_llm, check_litellm_key, disable_litellm_logging
 from prompt import get_func_dict, make_prompt
 from run_code import execute_transform
@@ -25,8 +24,6 @@ from utils import (
     setup_logging,
 )
 
-logger = logging.getLogger("my_logger")
-logger.setLevel(logging.DEBUG)
 disable_litellm_logging()
 
 load_dotenv()
@@ -78,11 +75,7 @@ def call_then_ask_for_code_from_explanation(model, messages, provider, llm_respo
     messages.append(make_message_part(prompt_for_python_code, "user"))
     response2, code_response2_as_text = call_llm(model, messages, provider)
     llm_responses.append(response2)
-    # print("CODE (as text):")
-    # print(code_response2_as_text)
     code_as_string = extract_from_code_block(code_response2_as_text)
-    # print("CODE (as code):")
-    # print(code_as_string)
     return code_as_string
 
 
@@ -105,7 +98,7 @@ def run_experiment(
     previous_explanations = []
     # we can force the previous explanation part for debugging
     # previous_explanations = ["""<EXPLANATION>This is a word substitution puzzle where numbers are switched around</EXPLANATION>"""]
-    for n in range(REFLEXION_ITERATIONS):
+    for reflexion_n in range(REFLEXION_ITERATIONS):
         prompt_to_describe_problem = make_prompt(
             template_name, problems, target="train", func_dict=func_dict
         )
@@ -113,6 +106,7 @@ def run_experiment(
         messages_to_get_explanation.append(
             make_message_part(prompt_to_describe_problem, "user")
         )
+        logger.info(f"Prompt to describe problem: {prompt_to_describe_problem}")
         # if we've iterated and failed, list the previous (incorrect) explanations
         if previous_explanations:
             explanation_prompt_pre = """Previously you wrote the following explanations, each of these are WRONG. You must not repeat these explanations, you must come up with something radically different."""
@@ -129,20 +123,16 @@ def run_experiment(
             messages_to_get_explanation.append(
                 make_message_part(explanation_prompt_post, "user")
             )
+            logger.info(f"Previous explanations: {previous_explanations}")
         # Next ask for a new explanation
         messages_to_get_explanation.append(
             make_message_part(prompt_for_explanation, "user")
         )
 
-        print("PROMPT:")
-        # print(initial_prompt, prompt_for_explanation)
-        pprint(messages_to_get_explanation)
-
         explanation_response_as_text = call_then_ask_for_new_explanation(
             model, messages_to_get_explanation, provider, llm_responses
         )
-        print("EXPLANATION:")
-        print(explanation_response_as_text)
+        logger.info(f"Explanation: {explanation_response_as_text}")
         previous_explanations.append(explanation_response_as_text)
 
         # Build a new prompt using the most recent explanation (and not any historic bad explanations)
@@ -157,30 +147,36 @@ def run_experiment(
         code_as_string = call_then_ask_for_code_from_explanation(
             model, messages_to_get_code, provider, llm_responses
         )
-        print(f"CODE: \n-----\n{code_as_string}\n-----")
+        # print(f"CODE: \n-----\n{code_as_string}\n-----")
 
         # run the code
         train_problems = problems["train"]
         rr_train = execute_transform(code_as_string, train_problems)
-        print("----rr_train on execution1")
-        print(rr_train)
+        # print("----rr_train on execution1")
+        # print(rr_train)
         # input("Press Enter to continue...")
 
-        if rr_train[0].transform_ran_and_matched_for_all_inputs:
+        success = rr_train[0].transform_ran_and_matched_for_all_inputs
+        if success:
             # we've succeeded
-            print("--------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            if n > 0:
-                print("---------------*******************!!!!")
-            print(f"--------------SUCCESS on iteration  {n}  !!!!!!!!!!!!!!!")
-            print("--------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            rr_trains.append(rr_train)
-            return rr_train
+            # log the success
+            # rr_trains.append(rr_train)
+            # return rr_train
+            break
         # if we failed, we need to iterate, so just loop again
+    else:
+        print("DEBUGGING")
 
-    print("--------------xxxxxxxxxxxxxxxxxxxx")
-    print("--------------FAILURE on this run xxxxxx")
-    print("--------------xxxxxxxxxxxxxxxxxxxx")
     # take the last execution result, move on
+    # TODO we don't yet store reflexion_n
+    record_run(
+        db_filename,
+        iteration_n,
+        explanation_response_as_text,
+        code_as_string,
+        messages_to_get_code,
+        success,
+    )
     rr_trains.append(rr_train)
     return rr_train
 
@@ -194,12 +190,7 @@ def run_experiment_for_iterations(
 
     successes = 0
     for n in range(iterations):
-        print(
-            f"---------------------------------------------------------------------------------------\nPrompt iteration {n}"
-        )
-        print(
-            "\n\n---------------------------------------------------------------------------------------\n"
-        )
+        logger.info(f"Running iteration {n}")
         run_experiment(
             db_filename,
             n,
@@ -210,15 +201,13 @@ def run_experiment_for_iterations(
             rr_trains,
             llm_responses,
         )
-        print(f"rr_trains: {len(rr_trains)}")
+        logger.info(f"rr_trains: {len(rr_trains)}")
         rr_train = rr_trains[-1]
         success = rr_train[0].transform_ran_and_matched_for_all_inputs
         successes += success
         if success:
-            print(
-                "-------------------------------- SUCCESS --------------------------------"
-            )
-            # input("Press Enter to continue...")
+            # log the success
+            break
         print(f"Successes: {successes} on {n=} of {iterations=}")
     assert len(rr_trains) == iterations
     return llm_responses, rr_trains

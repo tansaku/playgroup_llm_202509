@@ -61,7 +61,8 @@ def execute_transform(code_as_line, problems):
         # OSError: [Errno 9] Bad file descriptor
         # execute_transform caught: cannot access local variable 'result_chunks' where it is not associated with a value of type(e)=<class 'UnboundLocalError'>
         # use:
-        # n_jobs = 1
+        n_jobs = 1
+        print("!!!!!DEBUGGING run_code.py")
         # print(f"execute_transform n_jobs: {n_jobs}")
 
         try:

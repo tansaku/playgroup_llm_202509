@@ -105,6 +105,7 @@ def run_experiment_for_iterations(
 
 
 if __name__ == "__main__":
+    # We can force the code to _only run_ if fully checked it
     # if BREAK_IF_NOT_CHECKED_IN:
     #    utils.break_if_not_git_committed()
 
