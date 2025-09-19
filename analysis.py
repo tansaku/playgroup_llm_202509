@@ -1,3 +1,6 @@
+"""Calculate the odds ratio and p-value for two experiments"""
+
+import argparse
 import math
 from collections import Counter
 
@@ -55,20 +58,43 @@ def summarise_llm_responses(llm_responses):
     )
 
 
+# if __name__ == "__main__2":
+#    print("Made up results...")
+#    from utils import RunResult
+#
+#    rr_trains = [
+#        [RunResult(True, True, True, True, 1.0)],
+#        [RunResult(False, False, False, False, 0.0)],
+#    ]
+#    summarise_results(rr_trains)
+#
+#    # p==1 so come from the same distribution
+#    # res = do_fisher_exact(500, 500, 500, 500)
+#    print(res)
+#
+#    # res = do_fisher_exact(65, 300-65, 77, 300-77)
+#    # res = do_fisher_exact(32, 50 - 32, 43, 50 - 43)
+#    # print(res)
+
 if __name__ == "__main__":
-    print("Made up results...")
-    from utils import RunResult
+    parser = argparse.ArgumentParser(
+        description="Perform Fisher exact test on two experiments"
+    )
+    parser.add_argument("suc1", type=int, help="Number of successes in experiment 1")
+    parser.add_argument("n1", type=int, help="Total number of trials in experiment 1")
+    parser.add_argument("suc2", type=int, help="Number of successes in experiment 2")
+    parser.add_argument("n2", type=int, help="Total number of trials in experiment 2")
 
-    rr_trains = [
-        [RunResult(True, True, True, True, 1.0)],
-        [RunResult(False, False, False, False, 0.0)],
-    ]
-    summarise_results(rr_trains)
+    args = parser.parse_args()
 
-    # p==1 so come from the same distribution
-    res = do_fisher_exact(500, 500, 500, 500)
-    print(res)
+    res = do_fisher_exact(
+        args.suc1, args.n1 - args.suc1, args.suc2, args.n2 - args.suc2
+    )
+    print(f"Fisher exact test result: {res}")
+    print(f"Odds ratio: {res[0]:.4f}")
+    print(f"P-value: {res[1]:.6f}")
 
-    # res = do_fisher_exact(65, 300-65, 77, 300-77)
-    res = do_fisher_exact(32, 50 - 32, 43, 50 - 43)
-    print(res)
+    if res[1] < 0.05:
+        print("Significant difference (p < 0.05)")
+    else:
+        print("No significant difference (p >= 0.05)")
