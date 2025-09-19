@@ -5,6 +5,7 @@
 
 import logging
 from datetime import datetime
+from pprint import pprint
 
 # from litellm import completion
 from dotenv import load_dotenv
@@ -30,6 +31,7 @@ disable_litellm_logging()
 
 load_dotenv()
 
+
 prompt_for_python_code = """
 ## Action to write a solution in Python
 
@@ -50,13 +52,38 @@ def transform(initial):
 prompt_for_explanation = """
 ## Action to explain what you see
 
-Given the above examples, write several bullet points that explain the rules that convert the input patterns to the output patterns. Do note write any code, just explain the rules in a block that is marked like the following and ends with </EXPLANATION>:
+Given the above examples and guidance, write several bullet points that explain the rules that convert the input patterns to the output patterns. Do note write any code, just explain the rules in a block that is marked like the following and ends with:
 <EXPLANATION>
 ...
 </EXPLANATION>
 """
 
-prompt_for_reflexion = """"""
+
+prompt_for_reflexion = """
+# Feedback on your mistake
+
+Your explanation was wrong, the code you created from it did not work. You must now come up with a new explanation that is better that will work. It must explain how to get from the initial grid to the final grid correctly. Reflect on the previous explanation and come up with a new idea that is radically different.
+"""
+
+
+def call_then_ask_for_new_explanation(model, messages, provider, llm_responses):
+    """Call the LLM with the description and any past explanations, ask for new explanation"""
+    response, explanation_response_as_text = call_llm(model, messages, provider)
+
+    llm_responses.append(response)
+    return explanation_response_as_text
+
+
+def call_then_ask_for_code_from_explanation(model, messages, provider, llm_responses):
+    messages.append(make_message_part(prompt_for_python_code, "user"))
+    response2, code_response2_as_text = call_llm(model, messages, provider)
+    llm_responses.append(response2)
+    # print("CODE (as text):")
+    # print(code_response2_as_text)
+    code_as_string = extract_from_code_block(code_response2_as_text)
+    # print("CODE (as code):")
+    # print(code_as_string)
+    return code_as_string
 
 
 def run_experiment(
@@ -71,74 +98,89 @@ def run_experiment(
 ):
     # make a prompt before calling LLM
     func_dict = get_func_dict()
-    initial_prompt = make_prompt(
-        template_name, problems, target="train", func_dict=func_dict
-    )
-    messages = [make_message_part(initial_prompt, "user")]
-    messages.append(make_message_part(prompt_for_explanation, "user"))
+    REFLEXION_ITERATIONS = 3
+    if REFLEXION_ITERATIONS != 3:
+        # useful debug message to ian
+        print(f"---REFLEXION_ITERATIONS is {REFLEXION_ITERATIONS}, not 3")
+    previous_explanations = []
+    # we can force the previous explanation part for debugging
+    # previous_explanations = ["""<EXPLANATION>This is a word substitution puzzle where numbers are switched around</EXPLANATION>"""]
+    for n in range(REFLEXION_ITERATIONS):
+        prompt_to_describe_problem = make_prompt(
+            template_name, problems, target="train", func_dict=func_dict
+        )
+        messages_to_get_explanation = []
+        messages_to_get_explanation.append(
+            make_message_part(prompt_to_describe_problem, "user")
+        )
+        # if we've iterated and failed, list the previous (incorrect) explanations
+        if previous_explanations:
+            explanation_prompt_pre = """Previously you wrote the following explanations, each of these are WRONG. You must not repeat these explanations, you must come up with something radically different."""
+            messages_to_get_explanation.append(
+                make_message_part(explanation_prompt_pre, "user")
+            )
+            for previous_explanation in previous_explanations:
+                messages_to_get_explanation.append(
+                    make_message_part(
+                        "Incorrect explanation:\n" + previous_explanation, "assistant"
+                    )
+                )
+            explanation_prompt_post = """Never repeat the above explanations, you must come up with something radically different. Start by explaining why this might be wrong."""
+            messages_to_get_explanation.append(
+                make_message_part(explanation_prompt_post, "user")
+            )
+        # Next ask for a new explanation
+        messages_to_get_explanation.append(
+            make_message_part(prompt_for_explanation, "user")
+        )
 
-    print("PROMPT:")
-    print(initial_prompt, prompt_for_explanation)
+        print("PROMPT:")
+        # print(initial_prompt, prompt_for_explanation)
+        pprint(messages_to_get_explanation)
 
-    def ask_for_explanation_and_code(model, messages, provider):
-        # first send in the opening prompt which asks for an explanation
-        response = call_llm(model, messages, provider)
-        assert response is not None, "No response from LLM after retries"
-        llm_responses.append(response)
-        print(response)
-        # this should be the explanation
-        explanation_response_as_text = response.choices[0].message.content
+        explanation_response_as_text = call_then_ask_for_new_explanation(
+            model, messages_to_get_explanation, provider, llm_responses
+        )
         print("EXPLANATION:")
         print(explanation_response_as_text)
+        previous_explanations.append(explanation_response_as_text)
 
-        messages.append(
-            utils.make_message_part(explanation_response_as_text, "assistant")
+        # Build a new prompt using the most recent explanation (and not any historic bad explanations)
+        messages_to_get_code = []
+        messages_to_get_code.append(
+            make_message_part(prompt_to_describe_problem, "user")
         )
-        messages.append(utils.make_message_part(prompt_for_python_code, "user"))
-        response2 = call_llm(model, messages, provider)
-        assert response2 is not None, "No response from LLM after retries"
-        llm_responses.append(response2)
-        print("CODE (as text):")
-        code_response2_as_text = response2.choices[0].message.content
-        print(code_response2_as_text)
-        code_as_string = extract_from_code_block(code_response2_as_text)
-        print("CODE (as code):")
-        print(code_as_string)
-        return explanation_response_as_text, code_as_string
+        messages_to_get_code.append(make_message_part(prompt_for_explanation, "user"))
+        messages_to_get_code.append(
+            make_message_part(explanation_response_as_text, "assistant")
+        )
+        code_as_string = call_then_ask_for_code_from_explanation(
+            model, messages_to_get_code, provider, llm_responses
+        )
+        print(f"CODE: \n-----\n{code_as_string}\n-----")
 
-    explanation_response_as_text, code_as_string = ask_for_explanation_and_code(
-        model, messages, provider
-    )
+        # run the code
+        train_problems = problems["train"]
+        rr_train = execute_transform(code_as_string, train_problems)
+        print("----rr_train on execution1")
+        print(rr_train)
+        # input("Press Enter to continue...")
 
-    # run the code
-    train_problems = problems["train"]
-    rr_train = execute_transform(code_as_string, train_problems)
-    print("----rr_train on execution1")
-    print(rr_train)
+        if rr_train[0].transform_ran_and_matched_for_all_inputs:
+            # we've succeeded
+            print("--------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            if n > 0:
+                print("---------------*******************!!!!")
+            print(f"--------------SUCCESS on iteration  {n}  !!!!!!!!!!!!!!!")
+            print("--------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            rr_trains.append(rr_train)
+            return rr_train
+        # if we failed, we need to iterate, so just loop again
 
-    if rr_train[0].transform_ran_and_matched_for_all_inputs:
-        # we've succeeded
-        rr_trains.append(rr_train)
-        return rr_train
-    # instead - we didn't get success
-    messages = [make_message_part(initial_prompt, "user")]
-    messages.append(make_message_part(prompt_for_explanation, "user"))
-    messages.append(make_message_part(explanation_response_as_text, "assistant"))
-    prompt_for_reflexion = """
-# Feedback on your mistake
-
-Your explanation was wrong, the code you created from it did not work. You must now come up with a new explanation that is better that will work. It must explain how to get from the initial grid to the final grid correctly. Reflect on the previous explanation and come up with a new idea that is radically different.
-"""
-    messages.append(make_message_part(prompt_for_reflexion, "user"))
-    messages.append(make_message_part(prompt_for_explanation, "user"))
-
-    explanation_response_as_text, code_as_string = ask_for_explanation_and_code(
-        model, messages, provider
-    )
-    train_problems = problems["train"]
-    rr_train = execute_transform(code_as_string, train_problems)
-    print("----rr_train on execution2")
-    print(rr_train)
+    print("--------------xxxxxxxxxxxxxxxxxxxx")
+    print("--------------FAILURE on this run xxxxxx")
+    print("--------------xxxxxxxxxxxxxxxxxxxx")
+    # take the last execution result, move on
     rr_trains.append(rr_train)
     return rr_train
 
@@ -150,7 +192,14 @@ def run_experiment_for_iterations(
     llm_responses = []
     rr_trains = []
 
+    successes = 0
     for n in range(iterations):
+        print(
+            f"---------------------------------------------------------------------------------------\nPrompt iteration {n}"
+        )
+        print(
+            "\n\n---------------------------------------------------------------------------------------\n"
+        )
         run_experiment(
             db_filename,
             n,
@@ -161,6 +210,17 @@ def run_experiment_for_iterations(
             rr_trains,
             llm_responses,
         )
+        print(f"rr_trains: {len(rr_trains)}")
+        rr_train = rr_trains[-1]
+        success = rr_train[0].transform_ran_and_matched_for_all_inputs
+        successes += success
+        if success:
+            print(
+                "-------------------------------- SUCCESS --------------------------------"
+            )
+            # input("Press Enter to continue...")
+        print(f"Successes: {successes} on {n=} of {iterations=}")
+    assert len(rr_trains) == iterations
     return llm_responses, rr_trains
 
 
