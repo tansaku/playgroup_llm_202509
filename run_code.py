@@ -1,8 +1,10 @@
 """Run a Python code snippet (in a file) on an ARC AGI problem
 
 Example using a known problem with example coded solution:
-python run_code.py -p 9565186b -c ex_soln_9565186b.py
-python run_code.py -p 0d3d703e -c ex_soln_0d3d703e.py
+python run_code.py -p 0d3d703e -c example_solutions/ex_soln_0d3d703e.py
+python run_code.py -p 08ed6ac7 -c example_solutions/ex_soln_08ed6ac7.py
+
+python run_code.py -p 9565186b -c example_solutions/ex_soln_9565186b.py
 """
 
 import copy
