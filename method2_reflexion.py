@@ -79,6 +79,27 @@ def call_then_ask_for_code_from_explanation(model, messages, provider, llm_respo
     return code_as_string
 
 
+def add_previous_explanations_to_messages(
+    messages_to_get_explanation, previous_explanations
+):
+    """Add previous incorrect explanations to the message list to guide the LLM away from repeating them."""
+    explanation_prompt_pre = """Previously you wrote the following explanations, each of these are WRONG. You must not repeat these explanations, you must come up with something radically different."""
+    messages_to_get_explanation.append(
+        make_message_part(explanation_prompt_pre, "user")
+    )
+    for previous_explanation in previous_explanations:
+        messages_to_get_explanation.append(
+            make_message_part(
+                "Incorrect explanation:\n" + previous_explanation, "assistant"
+            )
+        )
+    explanation_prompt_post = """Never repeat the above explanations, you must come up with something radically different. Start by explaining why this might be wrong."""
+    messages_to_get_explanation.append(
+        make_message_part(explanation_prompt_post, "user")
+    )
+    logger.info(f"Previous explanations: {previous_explanations}")
+
+
 def run_experiment(
     db_filename: str,
     iteration_n: int,
@@ -109,21 +130,9 @@ def run_experiment(
         logger.info(f"Prompt to describe problem: {prompt_to_describe_problem}")
         # if we've iterated and failed, list the previous (incorrect) explanations
         if previous_explanations:
-            explanation_prompt_pre = """Previously you wrote the following explanations, each of these are WRONG. You must not repeat these explanations, you must come up with something radically different."""
-            messages_to_get_explanation.append(
-                make_message_part(explanation_prompt_pre, "user")
+            add_previous_explanations_to_messages(
+                messages_to_get_explanation, previous_explanations
             )
-            for previous_explanation in previous_explanations:
-                messages_to_get_explanation.append(
-                    make_message_part(
-                        "Incorrect explanation:\n" + previous_explanation, "assistant"
-                    )
-                )
-            explanation_prompt_post = """Never repeat the above explanations, you must come up with something radically different. Start by explaining why this might be wrong."""
-            messages_to_get_explanation.append(
-                make_message_part(explanation_prompt_post, "user")
-            )
-            logger.info(f"Previous explanations: {previous_explanations}")
         # Next ask for a new explanation
         messages_to_get_explanation.append(
             make_message_part(prompt_for_explanation, "user")
