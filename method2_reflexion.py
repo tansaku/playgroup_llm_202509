@@ -8,6 +8,7 @@ from datetime import datetime
 
 # from litellm import completion
 from dotenv import load_dotenv
+from tqdm import tqdm
 
 import analysis
 import utils
@@ -126,7 +127,8 @@ def run_experiment(
     previous_explanations = []
     # we can force the previous explanation part for debugging
     # previous_explanations = ["""<EXPLANATION>This is a word substitution puzzle where numbers are switched around</EXPLANATION>"""]
-    for reflexion_n in range(REFLEXION_ITERATIONS):
+    for reflexion_n in tqdm(range(REFLEXION_ITERATIONS), leave=False):
+        logger.info(f"Reflexion iteration {reflexion_n} on iteration {iteration_n}")
         prompt_to_describe_problem = make_prompt(
             template_name, problems, target="train", func_dict=func_dict
         )
@@ -163,21 +165,14 @@ def run_experiment(
         code_as_string = call_then_ask_for_code_from_explanation(
             model, messages_to_get_code, provider, llm_responses
         )
-        # print(f"CODE: \n-----\n{code_as_string}\n-----")
 
         # run the code
         train_problems = problems["train"]
         rr_train = execute_transform(code_as_string, train_problems)
-        # print("----rr_train on execution1")
-        # print(rr_train)
-        # input("Press Enter to continue...")
 
         success = rr_train[0].transform_ran_and_matched_for_all_inputs
         if success:
-            # we've succeeded
-            # log the success
-            # rr_trains.append(rr_train)
-            # return rr_train
+            logger.info(f"------> Success on reflexion iteration {reflexion_n}")
             break
         # if we failed, we need to iterate, so just loop again
     else:
@@ -205,7 +200,7 @@ def run_experiment_for_iterations(
     rr_trains = []
 
     successes = 0
-    for n in range(iterations):
+    for n in tqdm(range(iterations)):
         logger.info(f"Running iteration {n}")
         run_experiment(
             db_filename,
@@ -222,9 +217,7 @@ def run_experiment_for_iterations(
         success = rr_train[0].transform_ran_and_matched_for_all_inputs
         successes += success
         if success:
-            # log the success
-            break
-        print(f"Successes: {successes} on {n=} of {iterations=}")
+            print(f"Successes: {successes} on {n=} of {iterations=}")
     assert len(rr_trains) == iterations
     return llm_responses, rr_trains
 

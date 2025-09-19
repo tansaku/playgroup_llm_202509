@@ -18,7 +18,7 @@ def test_baseline_template_rendering():
 
     # Render the template
     rendered = template.render(
-        patterns_input_output=problems, write_grid=representations.write_grid
+        patterns_input_output=problems, make_grid_plain=representations.make_grid_plain
     )
 
     # Basic assertions about the rendered content
