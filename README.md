@@ -14,6 +14,8 @@ python run_code.py -p 0d3d703e -c example_solutions/ex_soln_0d3d703e.py # run go
 python run_code.py -p 0d3d703e -c example_solutions/ex_soln_08ed6ac7.py # run the wrong solution on a different problem
 ```
 
+The `run_code` module builds a `utils.RunResult` result, this tracks if and how many of the example `initial` problems were transformed correctly to the desired `final` states.
+
 ### run method1 with the default prompt on an easy problem for 5 iterations
 
 ```

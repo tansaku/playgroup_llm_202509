@@ -3,7 +3,6 @@
 # the initial grid turns into the final grid?
 # BONUS can you make it write code that solves this?
 
-import logging
 from collections import Counter
 from datetime import datetime
 
@@ -11,14 +10,17 @@ from dotenv import load_dotenv
 
 # from litellm import completion
 import utils
-from config import BREAK_IF_NOT_CHECKED_IN, providers
+from config import providers  # BREAK_IF_NOT_CHECKED_IN
 from litellm_helper import call_llm, check_litellm_key, disable_litellm_logging
 from prompt import get_func_dict, make_prompt
 from run_code import execute_transform
-from utils import extract_from_code_block
+from utils import (
+    extract_from_code_block,
+    initial_log,
+    make_experiment_folder,
+    setup_logging,
+)
 
-logger = logging.getLogger("my_logger")
-logger.setLevel(logging.DEBUG)
 disable_litellm_logging()
 
 load_dotenv()
@@ -72,8 +74,8 @@ def run_experiment_for_iterations(model, provider, iterations, problems, templat
 
 
 if __name__ == "__main__":
-    if BREAK_IF_NOT_CHECKED_IN:
-        utils.break_if_not_git_committed()
+    # if BREAK_IF_NOT_CHECKED_IN:
+    #    utils.break_if_not_git_committed()
 
     parser = utils.add_argument_parser(
         problem_name=True, template_name=True, iterations=True, model_name=True
@@ -81,7 +83,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
     print(args)
     check_litellm_key(args)
-    utils.initial_log(logger, args)
+    experiment_folder = make_experiment_folder()
+    exp_folder = make_experiment_folder()
+    logger = setup_logging(exp_folder)
+    initial_log(logger, None)
     start_dt = datetime.now()
     logger.info("Started experiment")
 

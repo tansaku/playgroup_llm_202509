@@ -6,20 +6,27 @@ import os
 import re
 import sys
 from collections import namedtuple
+from datetime import datetime
 from pathlib import PurePath
 
 import numpy as np
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,  # Set minimum log level
-    format="%(asctime)s - %(levelname)s - %(message)s",  # Log format
-    filename="experiment.log",  # File to write logs to
-    filemode="a",  # ISSUE if this is 'w' then the log only persists during run and then is deleted?!  # Append mode with a (use 'w' to overwrite)
-)
+
+def setup_logging(experiment_folder):
+    logging.basicConfig(
+        level=logging.INFO,  # Set minimum log level
+        format="%(asctime)s - %(levelname)s - %(message)s",  # Log format
+        filename=f"{experiment_folder}/experiment.log",  # File to write logs to
+        filemode="a",  # ISSUE if this is 'w' then the log only persists during run and then is deleted?!  # Append mode with a (use 'w' to overwrite)
+    )
+    logger = logging.getLogger("my_logger")
+    logger.setLevel(logging.DEBUG)
+    logger.info(f"Experiment folder: {experiment_folder}")
+    return logger
 
 
 def initial_log(logger, args):
+    # Configure logging
     logger.info(f"{args=}")
     githash = os.popen("git rev-parse HEAD").read().strip()
     logger.info(f"{githash=}")
@@ -195,8 +202,22 @@ def encode_image_to_base64(image_path):
         return base64.b64encode(image_file.read()).decode("utf-8")
 
 
+def make_experiment_folder(root_folder="experiments"):
+    """Create a new experiment folder with ISO8601 timestamp format
+    e.g. `exp_20250919T064451` in local time"""
+    timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
+    folder_name = f"exp_{timestamp}"
+    full_path = PurePath(root_folder) / folder_name
+    os.makedirs(full_path, exist_ok=True)
+    return str(full_path)
+
+
 if __name__ == "__main__":
     input = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
     import representations
 
     print(representations.make_excel_description_of_example(input))
+
+    exp_folder = make_experiment_folder()
+    logger = setup_logging(exp_folder)
+    initial_log(logger, None)
