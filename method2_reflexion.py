@@ -86,8 +86,8 @@ def add_previous_explanations_to_messages(
     """Add previous incorrect explanations to the message list to guide the LLM away from repeating them."""
     explanation_prompt_pre = (
         """Previously you wrote the following explanations, each of these are WRONG. """
+        """You must not repeat these explanations, you must come up with something radically different."""
     )
-    """You must not repeat these explanations, you must come up with something radically different."""
     messages_to_get_explanation.append(
         make_message_part(explanation_prompt_pre, "user")
     )
@@ -99,8 +99,8 @@ def add_previous_explanations_to_messages(
         )
     explanation_prompt_post = (
         """Never repeat the above explanations, you must come up with something """
+        """radically different. Start by explaining why this might be wrong."""
     )
-    """radically different. Start by explaining why this might be wrong."""
     messages_to_get_explanation.append(
         make_message_part(explanation_prompt_post, "user")
     )
