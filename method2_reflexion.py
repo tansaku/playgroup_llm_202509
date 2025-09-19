@@ -56,11 +56,12 @@ Given the above examples and guidance, write several bullet points that explain 
 """
 
 
-prompt_for_reflexion = """
-# Feedback on your mistake
-
-Your explanation was wrong, the code you created from it did not work. You must now come up with a new explanation that is better that will work. It must explain how to get from the initial grid to the final grid correctly. Reflect on the previous explanation and come up with a new idea that is radically different.
-"""
+# prompt_for_reflexion = """
+## Feedback on your mistake"""
+# """
+# Your explanation was wrong, the code you created from it did not work. You must now come up with a new"""
+# """ explanation that is better that will work. It must explain how to get from the initial grid to the final """
+# """grid correctly. Reflect on the previous explanation and come up with a new idea that is radically different."""
 
 
 def call_then_ask_for_new_explanation(model, messages, provider, llm_responses):
@@ -83,7 +84,10 @@ def add_previous_explanations_to_messages(
     messages_to_get_explanation, previous_explanations
 ):
     """Add previous incorrect explanations to the message list to guide the LLM away from repeating them."""
-    explanation_prompt_pre = """Previously you wrote the following explanations, each of these are WRONG. You must not repeat these explanations, you must come up with something radically different."""
+    explanation_prompt_pre = (
+        """Previously you wrote the following explanations, each of these are WRONG. """
+    )
+    """You must not repeat these explanations, you must come up with something radically different."""
     messages_to_get_explanation.append(
         make_message_part(explanation_prompt_pre, "user")
     )
@@ -93,7 +97,10 @@ def add_previous_explanations_to_messages(
                 "Incorrect explanation:\n" + previous_explanation, "assistant"
             )
         )
-    explanation_prompt_post = """Never repeat the above explanations, you must come up with something radically different. Start by explaining why this might be wrong."""
+    explanation_prompt_post = (
+        """Never repeat the above explanations, you must come up with something """
+    )
+    """radically different. Start by explaining why this might be wrong."""
     messages_to_get_explanation.append(
         make_message_part(explanation_prompt_post, "user")
     )
