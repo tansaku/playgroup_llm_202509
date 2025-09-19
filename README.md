@@ -32,6 +32,13 @@ python method1_text_prompt.py -p 0d3d703e -i 5
 # rr_train[1] gives an ExecutionOutcome object, for each initial/final pair it shows what the transform function generated
 ``` 
 
+### thoughts
+
+* is the baseline representation suboptimal? how could it be improved? look in `representations.py` and extend?
+* is a 1-pass prompt a good idea? should it be split into discrete chunks?
+* in `representations.py` we could add grid size, should we?
+* I've never tried scipy's connected components, would that help? might it mislead?
+
 
 # Setup notes
 
