@@ -14,7 +14,7 @@ python run_code.py -p 0d3d703e -c example_solutions/ex_soln_0d3d703e.py # run go
 python run_code.py -p 0d3d703e -c example_solutions/ex_soln_08ed6ac7.py # run the wrong solution on a different problem
 ```
 
-The `run_code` module builds a `utils.RunResult` result, this tracks if and how many of the example `initial` problems were transformed correctly to the desired `final` states.
+The `run_code.execute_transform` module builds a `utils.RunResult` result, this tracks if and how many of the example `initial` problems were transformed correctly to the desired `final` states. It also generates an `ExecutionOutcome` object which tracks how each initial grid is transformed, by the code.
 
 ### run method1 with the default prompt on an easy problem for 5 iterations
 
@@ -24,6 +24,12 @@ python method1_text_prompt.py --help # see the arg description
 python method1_text_prompt.py -p 0d3d703e -i 5
 # this is equivalent to the fully formed version which selects the prompt and model to run
 # python method1_text_prompt.py -p 0d3d703e -t baseline.j2 -m openrouter/deepseek/deepseek-chat-v3-0324 -i 5
+
+# In method1's run_experiment function we receive an object after trying a proposed solution
+# rr_train is a tuple of (RunResult, ExecutionOutcome, exception_message)
+# rr_train[0].code_ran_on_all_inputs will be True if all train examples ran regardless of output quality
+# rr_train[0].transform_ran_and_matched_for_all_inputs will be True if all train inputs were transformed correctly
+# rr_train[1] gives an ExecutionOutcome object, for each initial/final pair it shows what the transform function generated
 ``` 
 
 

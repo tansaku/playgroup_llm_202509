@@ -26,13 +26,14 @@ def setup_logging(experiment_folder):
 
 
 def initial_log(logger, args):
-    # Configure logging
+    """Initial log messages - args, githash for current commit"""
     logger.info(f"{args=}")
     githash = os.popen("git rev-parse HEAD").read().strip()
     logger.info(f"{githash=}")
 
 
 def make_message_part(text, role):
+    """Create another message part in OpenAI's format"""
     assert role in ["user", "assistant"]
     return {"content": [{"type": "text", "text": text}], "role": role}
 
@@ -86,15 +87,8 @@ class ExecutionOutcome:
         # generated_final_message = "..." or None?
 
     def __repr__(self):
-        return f"""initial:\n{self.initial}\nfinal:\n{self.final}\ngenerated:
-{self.generated_final}\nwas_correct: {self.was_correct}\n"""
-
-
-def get_grid_size(grid):
-    """Return e.g. (3,3) for grid size"""
-    assert isinstance(grid, list)
-    grid = np.array(grid)
-    return grid.shape
+        return f"""initial:\n{self.initial}\ndesired final:\n{self.final}\ntransformed initial:
+{self.generated_final}\nmatches desired final: {self.was_correct}\n"""
 
 
 def extract_from_code_block(text):

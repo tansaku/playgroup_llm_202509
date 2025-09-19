@@ -3,10 +3,12 @@
 # the initial grid turns into the final grid?
 # BONUS can you make it write code that solves this?
 
-from collections import Counter
 from datetime import datetime
 
 from dotenv import load_dotenv
+from tqdm import tqdm
+
+import analysis
 
 # from litellm import completion
 import utils
@@ -31,18 +33,15 @@ def run_experiment(model, provider, problems, messages, rr_trains, llm_responses
     llm_responses.append(response)
     # print(response)
     # print(response.choices[0].message.content)
-    print(content)
+    # print(content)
+    logger.info(f"Content: {content}")
 
     code_as_string = extract_from_code_block(content)
 
     train_problems = problems["train"]
     rr_train = execute_transform(code_as_string, train_problems)
-    # rr_train is a tuple of RunResult, ExecutionOutcome, exception_message
-    # rr_train[0].code_ran_on_all_inputs will be True if all train examples ran regardless of output quality
-    # rr_train[0].transform_ran_and_matched_for_all_inputs will be True if all train inputs were transformed correctly
-    if rr_train[0].transform_ran_and_matched_for_all_inputs:
-        breakpoint()
-    print(rr_train)
+    # print(rr_train)
+    logger.info(f"RR train: {rr_train}")
     rr_trains.append(rr_train)
 
 
@@ -55,20 +54,15 @@ def run_experiment_for_iterations(model, provider, iterations, problems, templat
     func_dict = get_func_dict()
     prompt = make_prompt(template_name, problems, target="train", func_dict=func_dict)
 
-    print("PROMPT (printed once, as we iterate on the same prompt):")
-    print(prompt)
+    # print("PROMPT (printed once, as we iterate on the same prompt):")
+    # print(prompt)
+    logger.info(f"Prompt: {prompt}")
     content = [{"type": "text", "text": prompt}]
     messages = [{"content": content, "role": "user"}]
     # we could print the whole json block
     # print(f"{messages=}")
 
-    for n in range(iterations):
-        print(
-            f"---------------------------------------------------------------------------------------\nPrompt iteration {n}"
-        )
-        print(
-            "\n\n---------------------------------------------------------------------------------------\n"
-        )
+    for n in tqdm(range(iterations)):
         run_experiment(model, provider, problems, messages, rr_trains, llm_responses)
     return llm_responses, rr_trains
 
@@ -84,9 +78,10 @@ if __name__ == "__main__":
     print(args)
     check_litellm_key(args)
     experiment_folder = make_experiment_folder()
+    print(f"tail -n +0 -f {experiment_folder}/experiment.log")
     exp_folder = make_experiment_folder()
     logger = setup_logging(exp_folder)
-    initial_log(logger, None)
+    initial_log(logger, args)
     start_dt = datetime.now()
     logger.info("Started experiment")
 
@@ -104,37 +99,15 @@ if __name__ == "__main__":
     )
 
     # show responses
-    print(
-        "\n--\n".join(
-            [response.choices[0].message.content for response in llm_responses]
-        )
-    )
-
-    # rr_trains[0][0].transform_ran_and_matched_for_all_inputs
-    # rr_trains is the list of RunResult pairs for the training problems
-    # each pair contains the RunResult and the grids initial/final/generated
-    # rr is each instance of the pair so rr[0] is the RunResult
-    # and we want to know how often transform_ran_and_matched_for_all_inputs
-    # was True, i.e. how many runs were correct
-    print(
-        f"Got {sum([rr[0].transform_ran_and_matched_for_all_inputs for rr in rr_trains])} of {len(rr_trains)} runs correct"
-    )
-
-    cnt_provider = Counter([response.provider for response in llm_responses])
-    print(f"Provider counts: {cnt_provider}")
-
-    all_token_usages = [
-        llm_response.usage.total_tokens for llm_response in llm_responses
-    ]
-
-    print(
-        f"Max token usage on a call was {max(all_token_usages):,}, "
-        f"Median token usage on a call was {sorted(all_token_usages)[int(len(all_token_usages) / 2)]:,}"
-    )
-    # print(f"Max token usage on a call was {max(all_token_usages)}")
     # print(
-    #    f"Median token usage on a call was {sorted(all_token_usages)[int(len(all_token_usages)/2)]}"
+    #    "\n--\n".join(
+    #        [response.choices[0].message.content for response in llm_responses]
+    #    )
     # )
+
+    analysis.summarise_results(rr_trains)
+    analysis.summarise_llm_responses(llm_responses)
     end_dt = datetime.now()
     dt_delta = end_dt - start_dt
     print(f"Experiment took {dt_delta}")
+    print(f"Full logs in:\n{experiment_folder}/experiment.log")
