@@ -3,6 +3,7 @@
 # the initial grid turns into the final grid?
 # BONUS can you make it write code that solves this?
 
+import re
 from datetime import datetime
 
 from dotenv import load_dotenv
@@ -13,6 +14,7 @@ import analysis
 # from litellm import completion
 import utils
 from config import providers  # BREAK_IF_NOT_CHECKED_IN
+from db import make_db, record_run
 from litellm_helper import call_llm, check_litellm_key, disable_litellm_logging
 from prompt import get_func_dict, make_prompt
 from run_code import execute_transform
@@ -28,24 +30,52 @@ disable_litellm_logging()
 load_dotenv()
 
 
-def run_experiment(model, provider, problems, messages, rr_trains, llm_responses):
+def extract_explanation(text):
+    """Extract content between EXPLANATION tags."""
+    pattern = r"<EXPLANATION>(.*?)</EXPLANATION>"
+    match = re.search(pattern, text, re.DOTALL)
+
+    if match:
+        return match.group(1).strip()
+    else:
+        return ""  # return empty string if no explanation found
+
+
+def run_experiment(
+    db_filename: str,
+    iteration_n: int,
+    model,
+    provider,
+    problems,
+    messages,
+    rr_trains,
+    llm_responses,
+):
     response, content = call_llm(model, messages, provider)
     llm_responses.append(response)
-    # print(response)
-    # print(response.choices[0].message.content)
-    # print(content)
     logger.info(f"Content: {content}")
 
     code_as_string = extract_from_code_block(content)
 
     train_problems = problems["train"]
     rr_train = execute_transform(code_as_string, train_problems)
-    # print(rr_train)
+    explanation = extract_explanation(content)
+    record_run(
+        db_filename,
+        iteration_n,
+        explanation,
+        code_as_string,
+        content,
+        rr_train[0].transform_ran_and_matched_for_all_inputs,
+    )
     logger.info(f"RR train: {rr_train}")
     rr_trains.append(rr_train)
+    breakpoint()
 
 
-def run_experiment_for_iterations(model, provider, iterations, problems, template_name):
+def run_experiment_for_iterations(
+    db_filename: str, model, provider, iterations, problems, template_name
+):
     """method1_text_prompt's run experiment"""
     llm_responses = []
     rr_trains = []
@@ -63,7 +93,16 @@ def run_experiment_for_iterations(model, provider, iterations, problems, templat
     # print(f"{messages=}")
 
     for n in tqdm(range(iterations)):
-        run_experiment(model, provider, problems, messages, rr_trains, llm_responses)
+        run_experiment(
+            db_filename,
+            n,
+            model,
+            provider,
+            problems,
+            messages,
+            rr_trains,
+            llm_responses,
+        )
     return llm_responses, rr_trains
 
 
@@ -85,12 +124,16 @@ if __name__ == "__main__":
     start_dt = datetime.now()
     logger.info("Started experiment")
 
+    db_filename = make_db(exp_folder)
+    logger.info(f"Database created at: {db_filename}")
+
     # load a single problem
     problems = utils.get_examples(args.problem_name)
 
     model = args.model_name
 
     llm_responses, rr_trains = run_experiment_for_iterations(
+        db_filename=db_filename,
         model=model,
         provider=providers[args.model_name],
         iterations=args.iterations,

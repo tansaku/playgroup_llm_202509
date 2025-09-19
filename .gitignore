@@ -1,5 +1,5 @@
 .env
-experiment.log
+experiments/
 *.swp
 .venv/*
 __pycache__
