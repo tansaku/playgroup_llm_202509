@@ -5,3 +5,4 @@ experiment.log
 __pycache__
 .cursor
 .~lock*
+TRIAL_openrouter_langchain1.py
