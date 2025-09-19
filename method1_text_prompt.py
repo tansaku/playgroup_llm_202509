@@ -140,13 +140,6 @@ if __name__ == "__main__":
         template_name=args.template_name,
     )
 
-    # show responses
-    # print(
-    #    "\n--\n".join(
-    #        [response.choices[0].message.content for response in llm_responses]
-    #    )
-    # )
-
     analysis.summarise_results(rr_trains)
     analysis.summarise_llm_responses(llm_responses)
     end_dt = datetime.now()
