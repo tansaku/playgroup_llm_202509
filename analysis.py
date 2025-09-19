@@ -31,11 +31,13 @@ def summarise_results(rr_trains):
     print(
         f"Total success: {total_success}, total n: {total_n}, percentage: {percent_success:.0%}"
     )
-    two_sd_error_interval = (
-        math.sqrt(total_n * (percent_success * (1 - percent_success))) * 2
+    # 2sd is 95.5% of confidence interval
+    # 1.96 is the z-score for 95% confidence interval
+    sd_95_error_interval = (
+        math.sqrt(total_n * (percent_success * (1 - percent_success))) * 1.96
     )
     print(
-        f"Two SD error interval: {two_sd_error_interval:0.2f} i.e. {total_success - two_sd_error_interval:0.2f} to {total_success + two_sd_error_interval:0.2f}"
+        f"95% (1.96 SD) CI error interval: {sd_95_error_interval:0.2f} i.e. {total_success - sd_95_error_interval:0.2f} to {total_success + sd_95_error_interval:0.2f}"
     )
 
 

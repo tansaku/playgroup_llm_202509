@@ -57,14 +57,17 @@ def execute_transform(code_as_line, problems):
 
         # use this when running at the cmd line
         n_jobs = max(len(problems), 2)
-        # trying to avoid the Cursor debug exception 20250826
+        # trying to avoid the Cursor debug exception
+        # OSError: [Errno 9] Bad file descriptor
+        # execute_transform caught: cannot access local variable 'result_chunks' where it is not associated with a value of type(e)=<class 'UnboundLocalError'>
+        # use:
         # n_jobs = 1
         # print(f"execute_transform n_jobs: {n_jobs}")
 
         try:
             # n_jobs = 1 for serial process
             # result_chunks = joblib.Parallel(n_jobs=len(problems), timeout=1)(
-            result_chunks = joblib.Parallel(n_jobs=n_jobs, timeout=1)(
+            result_chunks = joblib.Parallel(n_jobs=n_jobs, timeout=5)(
                 joblib.delayed(exec_and_run)(
                     code_as_line, np.array(copy.deepcopy(prob["input"]))
                 )

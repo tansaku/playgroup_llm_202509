@@ -22,6 +22,7 @@ from utils import (
     extract_from_code_block,
     initial_log,
     make_experiment_folder,
+    make_message_part,
     setup_logging,
 )
 
@@ -54,6 +55,7 @@ def run_experiment(
     response, content = call_llm(model, messages, provider)
     llm_responses.append(response)
     logger.info(f"Content: {content}")
+    messages_plus_response = messages + [make_message_part(content, "assistant")]
 
     code_as_string = extract_from_code_block(content)
 
@@ -65,12 +67,11 @@ def run_experiment(
         iteration_n,
         explanation,
         code_as_string,
-        content,
+        messages_plus_response,
         rr_train[0].transform_ran_and_matched_for_all_inputs,
     )
     logger.info(f"RR train: {rr_train}")
     rr_trains.append(rr_train)
-    breakpoint()
 
 
 def run_experiment_for_iterations(
@@ -82,15 +83,16 @@ def run_experiment_for_iterations(
 
     # make a prompt before calling LLM
     func_dict = get_func_dict()
-    prompt = make_prompt(template_name, problems, target="train", func_dict=func_dict)
+    initial_prompt = make_prompt(
+        template_name, problems, target="train", func_dict=func_dict
+    )
 
-    # print("PROMPT (printed once, as we iterate on the same prompt):")
-    # print(prompt)
-    logger.info(f"Prompt: {prompt}")
-    content = [{"type": "text", "text": prompt}]
-    messages = [{"content": content, "role": "user"}]
-    # we could print the whole json block
-    # print(f"{messages=}")
+    logger.info(f"Prompt: {initial_prompt}")
+    # content = [{"type": "text", "text": initial_prompt}]
+    # messages_orig = [{"content": content, "role": "user"}]  # TO DELETE
+
+    messages = [make_message_part(initial_prompt, "user")]
+    # messages.append(make_message_part(prompt_for_explanation, "user"))
 
     for n in tqdm(range(iterations)):
         run_experiment(
@@ -118,6 +120,7 @@ if __name__ == "__main__":
     check_litellm_key(args)
     experiment_folder = make_experiment_folder()
     print(f"tail -n +0 -f {experiment_folder}/experiment.log")
+    print(f"sqlite3 {experiment_folder}/experiments.db")
     exp_folder = make_experiment_folder()
     logger = setup_logging(exp_folder)
     initial_log(logger, args)

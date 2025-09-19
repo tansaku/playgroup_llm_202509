@@ -12,8 +12,10 @@ from utils import make_experiment_folder
 # select * from experiments; # shows all entries
 # .exit
 
+# get the final explanation or code where the code correctly transformed all train inputs
 # select final_explanation from experiments where all_train_transformed_correctly = True;
 # select code from experiments where all_train_transformed_correctly = True;
+# get an average of how often the code correctly transformed all train inputs
 # select avg(all_train_transformed_correctly) from experiments;
 
 
