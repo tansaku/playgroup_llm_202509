@@ -86,13 +86,9 @@ def run_experiment_for_iterations(
     initial_prompt = make_prompt(
         template_name, problems, target="train", func_dict=func_dict
     )
-
     logger.info(f"Prompt: {initial_prompt}")
-    # content = [{"type": "text", "text": initial_prompt}]
-    # messages_orig = [{"content": content, "role": "user"}]  # TO DELETE
 
     messages = [make_message_part(initial_prompt, "user")]
-    # messages.append(make_message_part(prompt_for_explanation, "user"))
 
     for n in tqdm(range(iterations)):
         run_experiment(
