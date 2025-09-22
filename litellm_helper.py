@@ -4,6 +4,8 @@ import time
 
 import litellm
 
+from config import providers
+
 
 def disable_litellm_logging():
     # disable litllm debug logs
@@ -18,11 +20,12 @@ def check_litellm_key(args):
     assert api_key_valid is True, "API key is not valid"
 
 
-def call_llm(model, messages, provider):
+def call_llm(model, messages):
     """Call llm, get a response (hopefully)
 
     Returns:
         response: litellm.Response object, content"""
+    provider = providers[model]
     NBR_PROVIDER_RETRIES = 10
     response = None
     # check we have a well-formed message to send
