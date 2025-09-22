@@ -12,7 +12,6 @@ from tqdm import tqdm
 
 import analysis
 import utils
-from config import providers
 from db import make_db, record_run
 from litellm_helper import call_llm, check_litellm_key, disable_litellm_logging
 from prompt import get_func_dict, make_prompt
@@ -65,10 +64,10 @@ Given the above examples and guidance, write several bullet points that explain 
 # """grid correctly. Reflect on the previous explanation and come up with a new idea that is radically different."""
 
 
-def call_then_ask_for_new_explanation(model, messages, provider, llm_responses):
+def call_then_ask_for_new_explanation(model, messages, llm_responses):
     """Call the LLM with the description and any past explanations, ask for new explanation"""
     logger.info(f"call_then_ask_for_new_explanation: {messages}")
-    response, explanation_response_as_text = call_llm(model, messages, provider)
+    response, explanation_response_as_text = call_llm(model, messages)
     logger.info(
         f"call_then_ask_for_new_explanation reply: {explanation_response_as_text}"
     )
@@ -76,10 +75,10 @@ def call_then_ask_for_new_explanation(model, messages, provider, llm_responses):
     return explanation_response_as_text
 
 
-def call_then_ask_for_code_from_explanation(model, messages, provider, llm_responses):
+def call_then_ask_for_code_from_explanation(model, messages, llm_responses):
     messages.append(make_message_part(prompt_for_python_code, "user"))
     logger.info(f"call_then_ask_for_code_from_explanation: {messages}")
-    response2, code_response2_as_text = call_llm(model, messages, provider)
+    response2, code_response2_as_text = call_llm(model, messages)
     logger.info(
         f"call_then_ask_for_code_from_explanation reply: {call_then_ask_for_code_from_explanation}"
     )
@@ -119,7 +118,6 @@ def run_experiment(
     db_filename: str,
     iteration_n: int,
     model,
-    provider,
     problems,
     template_name,
     rr_trains,
@@ -155,7 +153,7 @@ def run_experiment(
         )
 
         explanation_response_as_text = call_then_ask_for_new_explanation(
-            model, messages_to_get_explanation, provider, llm_responses
+            model, messages_to_get_explanation, llm_responses
         )
         logger.info(f"Explanation: {explanation_response_as_text}")
         previous_explanations.append(explanation_response_as_text)
@@ -170,7 +168,7 @@ def run_experiment(
             make_message_part(explanation_response_as_text, "assistant")
         )
         code_as_string = call_then_ask_for_code_from_explanation(
-            model, messages_to_get_code, provider, llm_responses
+            model, messages_to_get_code, llm_responses
         )
 
         # run the code
@@ -198,7 +196,7 @@ def run_experiment(
 
 
 def run_experiment_for_iterations(
-    db_filename: str, model, provider, iterations, problems, template_name
+    db_filename: str, model, iterations, problems, template_name
 ):
     """run experiment for many iterations"""
     llm_responses = []
@@ -211,7 +209,6 @@ def run_experiment_for_iterations(
             db_filename,
             n,
             model,
-            provider,
             problems,
             template_name,
             rr_trains,
@@ -258,7 +255,6 @@ if __name__ == "__main__":
     llm_responses, rr_trains = run_experiment_for_iterations(
         db_filename=db_filename,
         model=model,
-        provider=providers[args.model_name],
         iterations=args.iterations,
         problems=problems,
         template_name=args.template_name,

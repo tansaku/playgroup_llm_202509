@@ -111,7 +111,7 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     print(args)
-    check_litellm_key(args)
+    check_litellm_key(args)  # note this will check any provider
     experiment_folder = make_experiment_folder()
     print(f"tail -n +0 -f {experiment_folder}/experiment.log")
     print(f"sqlite3 {experiment_folder}/experiments.db")
