@@ -40,4 +40,11 @@ shows very similar results
 
 %run method1_text_prompt.py -t baseline_justjson.j2 -p 08ed6ac7 -i 100
 sqlite3 experiments/exp_20250922T183920/experiments.db
-RUNNING
+Total success: 34, total n: 100, percentage: 34%
+95% (1.96 SD) CI error interval: 9.28 i.e. 24.72 to 43.28
+Provider counts: Counter({'Lambda': 100})
+Max token usage on a call was 2,017, Median token usage on a call was 1,715
+Experiment took 0:19:40.088346
+Full logs in:
+experiments/exp_20250922T183920/experiment.log
+
