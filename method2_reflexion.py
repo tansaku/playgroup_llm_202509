@@ -67,15 +67,22 @@ Given the above examples and guidance, write several bullet points that explain 
 
 def call_then_ask_for_new_explanation(model, messages, provider, llm_responses):
     """Call the LLM with the description and any past explanations, ask for new explanation"""
+    logger.info(f"call_then_ask_for_new_explanation: {messages}")
     response, explanation_response_as_text = call_llm(model, messages, provider)
-
+    logger.info(
+        f"call_then_ask_for_new_explanation reply: {explanation_response_as_text}"
+    )
     llm_responses.append(response)
     return explanation_response_as_text
 
 
 def call_then_ask_for_code_from_explanation(model, messages, provider, llm_responses):
     messages.append(make_message_part(prompt_for_python_code, "user"))
+    logger.info(f"call_then_ask_for_code_from_explanation: {messages}")
     response2, code_response2_as_text = call_llm(model, messages, provider)
+    logger.info(
+        f"call_then_ask_for_code_from_explanation reply: {call_then_ask_for_code_from_explanation}"
+    )
     llm_responses.append(response2)
     code_as_string = extract_from_code_block(code_response2_as_text)
     return code_as_string
@@ -175,8 +182,6 @@ def run_experiment(
             logger.info(f"------> Success on reflexion iteration {reflexion_n}")
             break
         # if we failed, we need to iterate, so just loop again
-    else:
-        print("DEBUGGING")
 
     # take the last execution result, move on
     # TODO we don't yet store reflexion_n
@@ -195,7 +200,7 @@ def run_experiment(
 def run_experiment_for_iterations(
     db_filename: str, model, provider, iterations, problems, template_name
 ):
-    """"""
+    """run experiment for many iterations"""
     llm_responses = []
     rr_trains = []
 
@@ -264,3 +269,4 @@ if __name__ == "__main__":
     end_dt = datetime.now()
     dt_delta = end_dt - start_dt
     print(f"Experiment took {dt_delta}")
+    print(f"Full logs in:\n{experiment_folder}/experiment.log")

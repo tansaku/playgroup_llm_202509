@@ -15,7 +15,7 @@ import numpy as np
 def setup_logging(experiment_folder):
     logging.basicConfig(
         level=logging.INFO,  # Set minimum log level
-        format="%(asctime)s - %(levelname)s - %(message)s",  # Log format
+        format="%(asctime)s - %(levelname)s [%(filename)s:%(lineno)s - %(funcName)20s() ] - %(message)s",  # Log format
         filename=f"{experiment_folder}/experiment.log",  # File to write logs to
         filemode="a",  # ISSUE if this is 'w' then the log only persists during run and then is deleted?!  # Append mode with a (use 'w' to overwrite)
     )
@@ -154,7 +154,7 @@ def add_argument_parser(
             "--template_name",
             type=str,
             nargs="?",
-            help="template to use in ./templates/"
+            help="template to use in ./prompts/"
             " (default: %(default)s))",  # help msg 2 over lines with default
             default="baseline.j2",
         )

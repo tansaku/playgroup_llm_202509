@@ -1,4 +1,30 @@
 
+%run method2_reflexion.py -t reflexion.j2 -p 08ed6ac7 -i 100
+REFLEXION=5
+Total success: 70, total n: 100, percentage: 70%
+95% (1.96 SD) CI error interval: 8.98 i.e. 61.02 to 78.98
+Provider counts: Counter({'Lambda': 616})
+Max token usage on a call was 4,242, Median token usage on a call was 2,357
+Experiment took 2:12:19.665814
+
+
+%run method2_reflexion.py -t reflexion.j2 -p 08ed6ac7 -i 100
+REFLEXION=3
+Total success: 54, total n: 100, percentage: 54%
+95% (1.96 SD) CI error interval: 9.77 i.e. 44.23 to 63.77
+Provider counts: Counter({'Lambda': 466})
+Max token usage on a call was 3,853, Median token usage on a call was 2,305
+Experiment took 1:38:15.071390
+
+(25 its as a smaller trial)
+%run method2_reflexion.py -t reflexion.j2 -p 08ed6ac7 -i 25
+REFLEXION=3
+Total success: 13, total n: 25, percentage: 52%
+95% (1.96 SD) CI error interval: 4.90 i.e. 8.10 to 17.90
+Provider counts: Counter({'Lambda': 116})
+Max token usage on a call was 3,162, Median token usage on a call was 2,308
+Experiment took 0:23:43.389980
+
 
 %run method1_text_prompt.py -t baseline.j2 -p 08ed6ac7 -i 100
 Total success: 23, total n: 100, percentage: 23%
@@ -10,3 +36,7 @@ Full logs in:
 experiments/exp_20250919T192012/experiment.log
 select code from experiments where all_train_transformed_correctly = True;
 shows very similar results
+
+
+%run method1_text_prompt.py -t baseline_justjson.j2 -p 08ed6ac7 -i 100
+sqlite3 experiments/exp_20250922T183920/experiments.db
