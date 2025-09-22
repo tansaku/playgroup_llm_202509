@@ -13,7 +13,6 @@ import analysis
 
 # from litellm import completion
 import utils
-from config import providers  # BREAK_IF_NOT_CHECKED_IN
 from db import make_db, record_run
 from litellm_helper import call_llm, check_litellm_key, disable_litellm_logging
 from prompt import get_func_dict, make_prompt
@@ -46,13 +45,12 @@ def run_experiment(
     db_filename: str,
     iteration_n: int,
     model,
-    provider,
     problems,
     messages,
     rr_trains,
     llm_responses,
 ):
-    response, content = call_llm(model, messages, provider)
+    response, content = call_llm(model, messages)
     llm_responses.append(response)
     logger.info(f"Content: {content}")
     messages_plus_response = messages + [make_message_part(content, "assistant")]
@@ -75,7 +73,7 @@ def run_experiment(
 
 
 def run_experiment_for_iterations(
-    db_filename: str, model, provider, iterations, problems, template_name
+    db_filename: str, model, iterations, problems, template_name
 ):
     """method1_text_prompt's run experiment"""
     llm_responses = []
@@ -95,7 +93,6 @@ def run_experiment_for_iterations(
             db_filename,
             n,
             model,
-            provider,
             problems,
             messages,
             rr_trains,
@@ -114,7 +111,7 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     print(args)
-    check_litellm_key(args)
+    check_litellm_key(args)  # note this will check any provider
     experiment_folder = make_experiment_folder()
     print(f"tail -n +0 -f {experiment_folder}/experiment.log")
     print(f"sqlite3 {experiment_folder}/experiments.db")
@@ -135,7 +132,6 @@ if __name__ == "__main__":
     llm_responses, rr_trains = run_experiment_for_iterations(
         db_filename=db_filename,
         model=model,
-        provider=providers[args.model_name],
         iterations=args.iterations,
         problems=problems,
         template_name=args.template_name,
