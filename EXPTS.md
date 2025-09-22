@@ -40,3 +40,4 @@ shows very similar results
 
 %run method1_text_prompt.py -t baseline_justjson.j2 -p 08ed6ac7 -i 100
 sqlite3 experiments/exp_20250922T183920/experiments.db
+RUNNING
