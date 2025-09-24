@@ -107,6 +107,17 @@ def extract_from_code_block(text):
     return result
 
 
+def extract_explanation(text):
+    """Extract content between EXPLANATION tags."""
+    pattern = r"<EXPLANATION>(.*?)</EXPLANATION>"
+    match = re.search(pattern, text, re.DOTALL)
+
+    if match:
+        return match.group(1).strip()
+    else:
+        return ""  # return empty string if no explanation found
+
+
 def extract_json_from_response(response):
     try:
         container = json.loads(response)
