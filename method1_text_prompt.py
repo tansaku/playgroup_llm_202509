@@ -3,7 +3,6 @@
 # the initial grid turns into the final grid?
 # BONUS can you make it write code that solves this?
 
-import re
 
 from dotenv import load_dotenv
 from tqdm import tqdm
@@ -17,6 +16,7 @@ from run_code import execute_transform
 from utils import (
     do_first_setup,
     do_last_report,
+    extract_explanation,
     extract_from_code_block,
     make_message_part,
 )
@@ -24,17 +24,6 @@ from utils import (
 disable_litellm_logging()
 
 load_dotenv()
-
-
-def extract_explanation(text):
-    """Extract content between EXPLANATION tags."""
-    pattern = r"<EXPLANATION>(.*?)</EXPLANATION>"
-    match = re.search(pattern, text, re.DOTALL)
-
-    if match:
-        return match.group(1).strip()
-    else:
-        return ""  # return empty string if no explanation found
 
 
 def run_experiment(
