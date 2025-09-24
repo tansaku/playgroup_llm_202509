@@ -20,7 +20,7 @@ def setup_logging(experiment_folder):
         level=logging.INFO,  # Set minimum log level
         format="%(asctime)s - %(levelname)s [%(filename)s:%(lineno)s - %(funcName)20s() ] - %(message)s",  # Log format
         filename=f"{experiment_folder}/experiment.log",  # File to write logs to
-        filemode="a",  # ISSUE if this is 'w' then the log only persists during run and then is deleted?!  # Append mode with a (use 'w' to overwrite)
+        filemode="w",
     )
     logger = logging.getLogger("my_logger")
     logger.setLevel(logging.DEBUG)

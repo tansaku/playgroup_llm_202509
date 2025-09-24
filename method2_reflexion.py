@@ -4,24 +4,20 @@
 # keeps the explanations that were wrong, to steer it
 # Is there another way to get closer to the right solution?
 
-from datetime import datetime
 
 # from litellm import completion
 from dotenv import load_dotenv
 from tqdm import tqdm
 
-import analysis
-import utils
-from db import make_db, record_run
+from db import record_run
 from litellm_helper import call_llm, check_litellm_key, disable_litellm_logging
 from prompt import get_func_dict, make_prompt
 from run_code import execute_transform
 from utils import (
+    do_first_setup,
+    do_last_report,
     extract_from_code_block,
-    initial_log,
-    make_experiment_folder,
     make_message_part,
-    setup_logging,
 )
 
 disable_litellm_logging()
@@ -64,26 +60,22 @@ Given the above examples and guidance, write several bullet points that explain 
 # """grid correctly. Reflect on the previous explanation and come up with a new idea that is radically different."""
 
 
-def call_then_ask_for_new_explanation(model, messages, llm_responses):
+def call_for_new_explanation(model, messages, llm_responses):
     """Call the LLM with the description and any past explanations, ask for new explanation"""
-    logger.info(f"call_then_ask_for_new_explanation: {messages}")
     response, explanation_response_as_text = call_llm(model, messages)
-    logger.info(
-        f"call_then_ask_for_new_explanation reply: {explanation_response_as_text}"
-    )
     llm_responses.append(response)
+    logger.info(f"{messages=}")
+    logger.info(f"{explanation_response_as_text=}")
     return explanation_response_as_text
 
 
-def call_then_ask_for_code_from_explanation(model, messages, llm_responses):
+def call_then_extract_code(model, messages, llm_responses):
     messages.append(make_message_part(prompt_for_python_code, "user"))
-    logger.info(f"call_then_ask_for_code_from_explanation: {messages}")
-    response2, code_response2_as_text = call_llm(model, messages)
-    logger.info(
-        f"call_then_ask_for_code_from_explanation reply: {call_then_ask_for_code_from_explanation}"
-    )
-    llm_responses.append(response2)
-    code_as_string = extract_from_code_block(code_response2_as_text)
+    response, code_response_as_text = call_llm(model, messages)
+    logger.info(f"{messages=}")
+    logger.info(f"{code_response_as_text=}")
+    llm_responses.append(response)
+    code_as_string = extract_from_code_block(code_response_as_text)
     return code_as_string
 
 
@@ -123,12 +115,12 @@ def run_experiment(
     rr_trains,
     llm_responses,
 ):
-    # make a prompt before calling LLM
     func_dict = get_func_dict()
     REFLEXION_ITERATIONS = 3
     if REFLEXION_ITERATIONS != 3:
         # useful debug message to ian
         print(f"---REFLEXION_ITERATIONS is {REFLEXION_ITERATIONS}, not 3")
+    # we need to store the previous explanations to enable reflexion
     previous_explanations = []
     # we can force the previous explanation part for debugging
     # previous_explanations = ["""<EXPLANATION>This is a word substitution puzzle where numbers are switched around</EXPLANATION>"""]
@@ -137,10 +129,13 @@ def run_experiment(
         prompt_to_describe_problem = make_prompt(
             template_name, problems, target="train", func_dict=func_dict
         )
-        messages_to_get_explanation = []
-        messages_to_get_explanation.append(
+        # messages_to_get_explanation = []
+        # messages_to_get_explanation.append(
+        #    make_message_part(prompt_to_describe_problem, "user")
+        # )
+        messages_to_get_explanation = [
             make_message_part(prompt_to_describe_problem, "user")
-        )
+        ]
         logger.info(f"Prompt to describe problem: {prompt_to_describe_problem}")
         # if we've iterated and failed, list the previous (incorrect) explanations
         if previous_explanations:
@@ -152,13 +147,14 @@ def run_experiment(
             make_message_part(prompt_for_explanation, "user")
         )
 
-        explanation_response_as_text = call_then_ask_for_new_explanation(
+        explanation_response_as_text = call_for_new_explanation(
             model, messages_to_get_explanation, llm_responses
         )
         logger.info(f"Explanation: {explanation_response_as_text}")
         previous_explanations.append(explanation_response_as_text)
 
         # Build a new prompt using the most recent explanation (and not any historic bad explanations)
+        # COULD REFACTOR THIS BLOCK OUT
         messages_to_get_code = []
         messages_to_get_code.append(
             make_message_part(prompt_to_describe_problem, "user")
@@ -167,7 +163,7 @@ def run_experiment(
         messages_to_get_code.append(
             make_message_part(explanation_response_as_text, "assistant")
         )
-        code_as_string = call_then_ask_for_code_from_explanation(
+        code_as_string = call_then_extract_code(
             model, messages_to_get_code, llm_responses
         )
 
@@ -229,40 +225,15 @@ if __name__ == "__main__":
     # if BREAK_IF_NOT_CHECKED_IN:
     #    utils.break_if_not_git_committed()
 
-    parser = utils.add_argument_parser(
-        problem_name=True, template_name=True, iterations=True, model_name=True
-    )
-    args = parser.parse_args()
-    print(args)
-    check_litellm_key(args)
-    experiment_folder = make_experiment_folder()
-    print(f"tail -n +0 -f {experiment_folder}/experiment.log")
-    print(f"sqlite3 {experiment_folder}/experiments.db")
-    exp_folder = make_experiment_folder()
-    logger = setup_logging(exp_folder)
-    initial_log(logger, args)
-    start_dt = datetime.now()
-    logger.info("Started experiment")
-
-    db_filename = make_db(exp_folder)
-    logger.info(f"Database created at: {db_filename}")
-
-    # load a single problem
-    problems = utils.get_examples(args.problem_name)
-
-    model = args.model_name
+    args, experiment_folder, logger, start_dt, db_filename, problems = do_first_setup()
+    check_litellm_key(args)  # note this will check any provider
 
     llm_responses, rr_trains = run_experiment_for_iterations(
         db_filename=db_filename,
-        model=model,
+        model=args.model_name,
         iterations=args.iterations,
         problems=problems,
         template_name=args.template_name,
     )
 
-    analysis.summarise_results(rr_trains)
-    analysis.summarise_llm_responses(llm_responses)
-    end_dt = datetime.now()
-    dt_delta = end_dt - start_dt
-    print(f"Experiment took {dt_delta}")
-    print(f"Full logs in:\n{experiment_folder}/experiment.log")
+    do_last_report(rr_trains, llm_responses, experiment_folder, start_dt)

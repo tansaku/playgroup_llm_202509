@@ -104,11 +104,10 @@ if __name__ == "__main__":
 
     args, experiment_folder, logger, start_dt, db_filename, problems = do_first_setup()
     check_litellm_key(args)  # note this will check any provider
-    model = args.model_name
 
     llm_responses, rr_trains = run_experiment_for_iterations(
         db_filename=db_filename,
-        model=model,
+        model=args.model_name,
         iterations=args.iterations,
         problems=problems,
         template_name=args.template_name,

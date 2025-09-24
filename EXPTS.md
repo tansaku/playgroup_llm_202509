@@ -1,4 +1,6 @@
 
+%run method2_reflexion.py -t reflexion.j2 -p 0d3d703e -i 2
+
 %run method2_reflexion.py -t reflexion.j2 -p 08ed6ac7 -i 100
 REFLEXION=5
 Total success: 70, total n: 100, percentage: 70%
