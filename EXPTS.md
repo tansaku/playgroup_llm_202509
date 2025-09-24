@@ -48,3 +48,19 @@ Experiment took 0:19:40.088346
 Full logs in:
 experiments/exp_20250922T183920/experiment.log
 
+%run method1_text_prompt.py -t baseline_justjson.j2 -p 08ed6ac7 -i 100
+Total success: 41, total n: 100, percentage: 41%
+95% (1.96 SD) CI error interval: 9.64 i.e. 31.36 to 50.64
+Provider counts: Counter({'Lambda': 100})
+Max token usage on a call was 2,028, Median token usage on a call was 1,758
+Experiment took 0:20:30.754208
+Full logs in:
+experiments/exp_20250922T200146/experiment.log
+
+Total success: 390, total n: 1000, percentage: 39%
+95% (1.96 SD) CI error interval: 30.23 i.e. 359.77 to 420.23
+Provider counts: Counter({'Lambda': 1000})
+Max token usage on a call was 2,318, Median token usage on a call was 1,746
+Experiment took 3:09:38.266363
+Full logs in:
+experiments/exp_20250922T210837/experiment.log
