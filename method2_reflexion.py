@@ -106,6 +106,24 @@ def add_previous_explanations_to_messages(
     logger.info(f"Previous explanations: {previous_explanations}")
 
 
+def ask_for_code_and_execute(
+    model, prompt_to_describe_problem, explanation_response_as_text, llm_responses
+):
+    # Build a new prompt using the most recent explanation (and not any historic bad explanations)
+    messages_to_get_code = []
+    messages_to_get_code.append(make_message_part(prompt_to_describe_problem, "user"))
+    messages_to_get_code.append(make_message_part(prompt_for_explanation, "user"))
+    messages_to_get_code.append(
+        make_message_part(explanation_response_as_text, "assistant")
+    )
+    code_as_string = call_then_extract_code(model, messages_to_get_code, llm_responses)
+
+    # run the code
+    train_problems = problems["train"]
+    rr_train = execute_transform(code_as_string, train_problems)
+    return rr_train, code_as_string, messages_to_get_code
+
+
 def run_experiment(
     db_filename: str,
     iteration_n: int,
@@ -129,10 +147,6 @@ def run_experiment(
         prompt_to_describe_problem = make_prompt(
             template_name, problems, target="train", func_dict=func_dict
         )
-        # messages_to_get_explanation = []
-        # messages_to_get_explanation.append(
-        #    make_message_part(prompt_to_describe_problem, "user")
-        # )
         messages_to_get_explanation = [
             make_message_part(prompt_to_describe_problem, "user")
         ]
@@ -153,23 +167,12 @@ def run_experiment(
         logger.info(f"Explanation: {explanation_response_as_text}")
         previous_explanations.append(explanation_response_as_text)
 
-        # Build a new prompt using the most recent explanation (and not any historic bad explanations)
-        # COULD REFACTOR THIS BLOCK OUT
-        messages_to_get_code = []
-        messages_to_get_code.append(
-            make_message_part(prompt_to_describe_problem, "user")
+        rr_train, code_as_string, messages_to_get_code = ask_for_code_and_execute(
+            model,
+            prompt_to_describe_problem,
+            explanation_response_as_text,
+            llm_responses,
         )
-        messages_to_get_code.append(make_message_part(prompt_for_explanation, "user"))
-        messages_to_get_code.append(
-            make_message_part(explanation_response_as_text, "assistant")
-        )
-        code_as_string = call_then_extract_code(
-            model, messages_to_get_code, llm_responses
-        )
-
-        # run the code
-        train_problems = problems["train"]
-        rr_train = execute_transform(code_as_string, train_problems)
 
         success = rr_train[0].transform_ran_and_matched_for_all_inputs
         if success:

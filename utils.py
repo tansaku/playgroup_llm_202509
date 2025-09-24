@@ -21,6 +21,7 @@ def setup_logging(experiment_folder):
         format="%(asctime)s - %(levelname)s [%(filename)s:%(lineno)s - %(funcName)20s() ] - %(message)s",  # Log format
         filename=f"{experiment_folder}/experiment.log",  # File to write logs to
         filemode="w",
+        force=True,  # else repeated use of logger in ipython results in no subsequent logs!
     )
     logger = logging.getLogger("my_logger")
     logger.setLevel(logging.DEBUG)

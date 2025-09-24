@@ -1,5 +1,11 @@
 # playgroup_llm_202509
 
+Created for playgroup attendees on 2025-09 in London.
+
+License - MIT.
+
+* https://the-playgroup.slack.com/
+* https://github.com/ianozsvald/playgroup_llm_202509
 
 # Walkthrough
 
@@ -40,6 +46,12 @@ python method1_text_prompt.py -p 0d3d703e -i 5
 * I've never tried scipy's connected components, would that help? might it mislead?
 
 
+### code dev notes
+
+`python -m pytest --cov=. --cov-report=html` will run an HTML coverage report, view with `open htmlcov/index.html` in a browser.
+
+`pytest` will run all your tests. If you setup `pre-commit` then any commits will kick off `isort`, `ruff` and `pytest`.
+
 # Setup notes
 
 
@@ -60,6 +72,7 @@ sudo apt install fswatch
 
 ```
 # pre-commit, on .pre-commit-config.yaml
+# note we don't need ruff & isort in the main requirements.txt file
 pip install pre-commit
 pre-commit install
 pre-commit install --hook-type pre-commit

@@ -1,5 +1,11 @@
 
+TESTING
 %run method2_reflexion.py -t reflexion.j2 -p 0d3d703e -i 2
+%run method1_text_prompt.py -t baseline_justjson.j2 -p  0d3d703e -i 2
+
+%run method2_reflexion.py -t reflexion.j2 -p 08ed6ac7 -i 25
+same restul
+
 
 %run method2_reflexion.py -t reflexion.j2 -p 08ed6ac7 -i 100
 REFLEXION=5

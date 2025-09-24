@@ -1,7 +1,10 @@
 .env
 experiments/
 *.swp
+.vscode
+.coverage
 .venv/*
+.venv2/*
 __pycache__
 .cursor
 .~lock*
