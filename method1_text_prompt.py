@@ -4,25 +4,21 @@
 # BONUS can you make it write code that solves this?
 
 import re
-from datetime import datetime
 
 from dotenv import load_dotenv
 from tqdm import tqdm
 
-import analysis
-
-# from litellm import completion
-import utils
-from db import make_db, record_run
+from db import record_run
 from litellm_helper import call_llm, check_litellm_key, disable_litellm_logging
 from prompt import get_func_dict, make_prompt
 from run_code import execute_transform
+
+# from litellm import completion
 from utils import (
+    do_first_setup,
+    do_last_report,
     extract_from_code_block,
-    initial_log,
-    make_experiment_folder,
     make_message_part,
-    setup_logging,
 )
 
 disable_litellm_logging()
@@ -106,27 +102,8 @@ if __name__ == "__main__":
     # if BREAK_IF_NOT_CHECKED_IN:
     #    utils.break_if_not_git_committed()
 
-    parser = utils.add_argument_parser(
-        problem_name=True, template_name=True, iterations=True, model_name=True
-    )
-    args = parser.parse_args()
-    print(args)
+    args, experiment_folder, logger, start_dt, db_filename, problems = do_first_setup()
     check_litellm_key(args)  # note this will check any provider
-    experiment_folder = make_experiment_folder()
-    print(f"tail -n +0 -f {experiment_folder}/experiment.log")
-    print(f"sqlite3 {experiment_folder}/experiments.db")
-    exp_folder = make_experiment_folder()
-    logger = setup_logging(exp_folder)
-    initial_log(logger, args)
-    start_dt = datetime.now()
-    logger.info("Started experiment")
-
-    db_filename = make_db(exp_folder)
-    logger.info(f"Database created at: {db_filename}")
-
-    # load a single problem
-    problems = utils.get_examples(args.problem_name)
-
     model = args.model_name
 
     llm_responses, rr_trains = run_experiment_for_iterations(
@@ -137,9 +114,4 @@ if __name__ == "__main__":
         template_name=args.template_name,
     )
 
-    analysis.summarise_results(rr_trains)
-    analysis.summarise_llm_responses(llm_responses)
-    end_dt = datetime.now()
-    dt_delta = end_dt - start_dt
-    print(f"Experiment took {dt_delta}")
-    print(f"Full logs in:\n{experiment_folder}/experiment.log")
+    do_last_report(rr_trains, llm_responses, experiment_folder, start_dt)

@@ -11,6 +11,9 @@ from pathlib import PurePath
 
 import numpy as np
 
+import analysis
+from db import make_db
+
 
 def setup_logging(experiment_folder):
     logging.basicConfig(
@@ -204,6 +207,39 @@ def make_experiment_folder(root_folder="experiments"):
     full_path = PurePath(root_folder) / folder_name
     os.makedirs(full_path, exist_ok=True)
     return str(full_path)
+
+
+def do_first_setup():
+    # create an argparse with default args
+    # we can manually add any as needed
+    parser = add_argument_parser(
+        problem_name=True, template_name=True, iterations=True, model_name=True
+    )
+    args = parser.parse_args()
+    print(args)
+    experiment_folder = make_experiment_folder()
+    print(f"tail -n +0 -f {experiment_folder}/experiment.log")
+    print(f"sqlite3 {experiment_folder}/experiments.db")
+    logger = setup_logging(experiment_folder)
+    initial_log(logger, args)
+    start_dt = datetime.now()
+    logger.info("Started experiment")
+
+    db_filename = make_db(experiment_folder)
+    logger.info(f"Database created at: {db_filename}")
+
+    # load a single problem
+    problems = get_examples(args.problem_name)
+    return args, experiment_folder, logger, start_dt, db_filename, problems
+
+
+def do_last_report(rr_trains, llm_responses, experiment_folder, start_dt):
+    analysis.summarise_results(rr_trains)
+    analysis.summarise_llm_responses(llm_responses)
+    end_dt = datetime.now()
+    dt_delta = end_dt - start_dt
+    print(f"Experiment took {dt_delta}")
+    print(f"Full logs in:\n{experiment_folder}/experiment.log")
 
 
 if __name__ == "__main__":

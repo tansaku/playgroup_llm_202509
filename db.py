@@ -4,8 +4,6 @@ import sqlite3
 from pathlib import Path
 from typing import Any, Dict, List
 
-from utils import make_experiment_folder
-
 # sqlite3 exp_fold/experiments.db
 # .tables # shows experiments table
 # .schema experiments # shows the schema
@@ -110,6 +108,8 @@ def record_run(
 
 
 if __name__ == "__main__":
+    from utils import make_experiment_folder
+
     # Example usage
     exp_folder = make_experiment_folder()
     # db_path = Path(exp_folder) / "experiments.db"
