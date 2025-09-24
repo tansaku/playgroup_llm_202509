@@ -6,8 +6,6 @@ dill==0.3.8
 litellm==1.74.4
 dotenv
 pytest
-isort==6.0.1
-ruff==0.13.0
 pytest-cov
 pandas==2.3.0
 scipy==1.15.3
@@ -15,3 +13,7 @@ scipy==1.15.3
 #langchain-openai==0.3.33
 #langchain==0.3.27
 #langchain-litellm==0.2.2
+pre-commit
+# not sure i need with pre-commit
+#isort==6.0.1
+#ruff==0.13.0
