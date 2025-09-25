@@ -52,30 +52,20 @@ Given the above examples and guidance, write several bullet points that explain 
 """
 
 
-# prompt_for_reflexion = """
-## Feedback on your mistake"""
-# """
-# Your explanation was wrong, the code you created from it did not work. You must now come up with a new"""
-# """ explanation that is better that will work. It must explain how to get from the initial grid to the final """
-# """grid correctly. Reflect on the previous explanation and come up with a new idea that is radically different."""
-
-
 def call_for_new_explanation(model, messages, llm_responses):
     """Call the LLM with the description and any past explanations, ask for new explanation"""
     response, explanation_response_as_text = call_llm(model, messages)
     llm_responses.append(response)
-    logger.info(f"{messages=}")
-    logger.info(f"{explanation_response_as_text=}")
     return explanation_response_as_text
 
 
 def call_then_extract_code(model, messages, llm_responses):
     messages.append(make_message_part(prompt_for_python_code, "user"))
     response, code_response_as_text = call_llm(model, messages)
-    logger.info(f"{messages=}")
-    logger.info(f"{code_response_as_text=}")
     llm_responses.append(response)
     code_as_string = extract_from_code_block(code_response_as_text)
+    logger.info("After calling the LLM, we get code back")
+    logger.info(code_as_string)
     return code_as_string
 
 
@@ -87,6 +77,10 @@ def add_previous_explanations_to_messages(
         """Previously you wrote the following explanations, each of these are WRONG. """
         """You must not repeat these explanations, you must come up with something radically different."""
     )
+    logger.info(f"Explanation prompt pre: {explanation_prompt_pre}")
+    logger.info(f"Previous {len(previous_explanations)} explanations:")
+    for pe in previous_explanations:
+        logger.info(pe)
     messages_to_get_explanation.append(
         make_message_part(explanation_prompt_pre, "user")
     )
@@ -100,10 +94,10 @@ def add_previous_explanations_to_messages(
         """Never repeat the above explanations, you must come up with something """
         """radically different. Start by explaining why this might be wrong."""
     )
+    logger.info(f"Explanation prompt post: {explanation_prompt_post}")
     messages_to_get_explanation.append(
         make_message_part(explanation_prompt_post, "user")
     )
-    logger.info(f"Previous explanations: {previous_explanations}")
 
 
 def ask_for_code_and_execute(
@@ -121,6 +115,8 @@ def ask_for_code_and_execute(
     # run the code
     train_problems = problems["train"]
     rr_train = execute_transform(code_as_string, train_problems)
+    logger.info("After executing the code, we get rr_train:")
+    logger.info(rr_train)
     return rr_train, code_as_string, messages_to_get_code
 
 
@@ -143,7 +139,9 @@ def run_experiment(
     # we can force the previous explanation part for debugging
     # previous_explanations = ["""<EXPLANATION>This is a word substitution puzzle where numbers are switched around</EXPLANATION>"""]
     for reflexion_n in tqdm(range(REFLEXION_ITERATIONS), leave=False):
-        logger.info(f"Reflexion iteration {reflexion_n} on iteration {iteration_n}")
+        logger.info(
+            f"Reflexion iteration {reflexion_n} on experiment iteration {iteration_n}"
+        )
         prompt_to_describe_problem = make_prompt(
             template_name, problems, target="train", func_dict=func_dict
         )
@@ -164,7 +162,8 @@ def run_experiment(
         explanation_response_as_text = call_for_new_explanation(
             model, messages_to_get_explanation, llm_responses
         )
-        logger.info(f"Explanation: {explanation_response_as_text}")
+        logger.info("New explanation:")
+        logger.info(explanation_response_as_text)
         previous_explanations.append(explanation_response_as_text)
 
         rr_train, code_as_string, messages_to_get_code = ask_for_code_and_execute(
