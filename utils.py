@@ -171,7 +171,7 @@ def add_argument_parser(
             nargs="?",
             help="template to use in ./prompts/"
             " (default: %(default)s))",  # help msg 2 over lines with default
-            default="baseline.j2",
+            default="baseline_justjson.j2",
         )
     if iterations:
         parser.add_argument(

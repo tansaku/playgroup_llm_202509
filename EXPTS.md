@@ -2,11 +2,25 @@
 TESTING
 %run method2_reflexion.py -t reflexion.j2 -p 0d3d703e -i 2
 %run method1_text_prompt.py -t baseline_justjson.j2 -p  0d3d703e -i 2
+%run method1_text_prompt.py -t baseline_quotedgridcsv.j2 -p  0d3d703e -i 
 
 %run method2_reflexion.py -t reflexion.j2 -p 08ed6ac7 -i 25
 same restul
 
 
+
+%run method1_text_prompt.py -t baseline_wquotedgridcsv_excel.j2 -p 08ed6ac7 -i 100
+(Total success: 23, total n: 100, percentage: 23% without gridcsv excel)
+RUNNING
+
+%run run_all_problems.py -t baseline_justjson.j2  -i 100
+RUNNING
+
+%run run_all_problems.py -t baseline_wplaingrid.j2  -i 100
+RUNNING
+
+TODO maybe?
+baseline_wquotedgridcsv_excel.j2
 
 Just json, no grid repr, method1
 #%run run_all_problems.py -t baseline_justjson.j2  -i 30
@@ -66,7 +80,7 @@ Provider counts: Counter({'Lambda': 116})
 Max token usage on a call was 3,162, Median token usage on a call was 2,308
 Experiment took 0:23:43.389980
 
-
+(baseline is now baseline_wplaingrid)
 %run method1_text_prompt.py -t baseline.j2 -p 08ed6ac7 -i 100
 Total success: 23, total n: 100, percentage: 23%
 95% (1.96 SD) CI error interval: 8.25 i.e. 14.75 to 31.25

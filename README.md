@@ -7,11 +7,28 @@ License - MIT.
 * https://the-playgroup.slack.com/
 * https://github.com/ianozsvald/playgroup_llm_202509
 
-# Walkthrough
+# Setup
 
 ```
-python prompt.py --help # select a template and problem to render
-python prompt.py -t baseline.j2 -p 0d3d703e # render this problem
+# I'm assuming you havea  Python 3.12 environment setup already
+# you'll see further below in 'Ian's notes' I use conda to make a plain 3.12 env, then I make this venv (on my linux machine)
+python -m venv .venv
+. .venv/bin/activate # activate local env
+pip install -r requirements.txt
+
+# now you _should_ be able to run pytest and prompt.py
+pytest
+python prompt.py --help # just check it runs
+python run_code.py --help # just check it runs
+```
+
+# Walkthrough (during playgroup)
+
+```
+# visit https://arcprize.org/play?task=0d3d703e
+python prompt.py -t baseline_justjson.j2 -p 0d3d703e # render this problem as a prompt
+python prompt.py -t baseline_wquotedgridcsv_excel.j2 -p 0d3d703e # render this problem as a prompt
+
 ```
 
 ```
@@ -29,7 +46,7 @@ The `run_code.execute_transform` module builds a `utils.RunResult` result, this 
 python method1_text_prompt.py --help # see the arg description
 python method1_text_prompt.py -p 0d3d703e -i 5
 # this is equivalent to the fully formed version which selects the prompt and model to run
-# python method1_text_prompt.py -p 0d3d703e -t baseline.j2 -m openrouter/deepseek/deepseek-chat-v3-0324 -i 5
+# python method1_text_prompt.py -p 0d3d703e -t baseline_justjson.j2 -m openrouter/deepseek/deepseek-chat-v3-0324 -i 5
 
 # In method1's run_experiment function we receive an object after trying a proposed solution
 # rr_train is a tuple of (RunResult, ExecutionOutcome, exception_message)
@@ -54,6 +71,8 @@ python method1_text_prompt.py -p 0d3d703e -i 5
 
 # Setup notes
 
+
+# Ian's stuff below here
 
 ## Setup notes by Ian for Ian
 

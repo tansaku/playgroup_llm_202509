@@ -14,7 +14,7 @@ def test_baseline_template_rendering():
     # Set up Jinja2 environment
     template_dir = os.path.join(os.path.dirname(__file__), "prompts")
     env = Environment(loader=FileSystemLoader(template_dir))
-    template = env.get_template("baseline.j2")
+    template = env.get_template("baseline_justjson.j2")
 
     # Render the template
     rendered = template.render(

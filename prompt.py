@@ -36,7 +36,7 @@ def get_func_dict():
         "make_grid_csv": representations.make_grid_csv,
         # "base64_grid_image": util_image_encoder.save_pixel_block,
         # "base64_grid_image_href": util_image_encoder.save_pixel_block_href,
-        # "make_excel_description_of_example": representations.make_excel_description_of_example,
+        "make_excel_description_of_example": representations.make_excel_description_of_example,
     }
     return func_dict
 
