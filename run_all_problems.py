@@ -66,6 +66,7 @@ if __name__ == "__main__":
 
     # module_name = args.module_name
     module_name = "method1_text_prompt"
+    # module_name = "method2_reflexion"
     print(f"HARDCODED to use {module_name} <-------------")
     method_module = importlib.import_module(module_name)
     entry_point = method_module.run_experiment_for_iterations

@@ -1,6 +1,9 @@
 
 TESTING
 %run method2_reflexion.py -t reflexion.j2 -p 0d3d703e -i 2
+%run method2_reflexion.py -t reflexion_wquotedgridcsv_excel.j2 -p 0d3d703e -i 2
+
+
 %run method1_text_prompt.py -t baseline_justjson.j2 -p  0d3d703e -i 2
 %run method1_text_prompt.py -t baseline_quotedgridcsv.j2 -p  0d3d703e -i 
 
@@ -11,16 +14,33 @@ same restul
 
 %run method1_text_prompt.py -t baseline_wquotedgridcsv_excel.j2 -p 08ed6ac7 -i 100
 (Total success: 23, total n: 100, percentage: 23% without gridcsv excel)
-RUNNING
+Total success: 39, total n: 100, percentage: 39%
+95% (1.96 SD) CI error interval: 9.56 i.e. 29.44 to 48.56
+Experiment took 0:15:53.046025
 
 %run run_all_problems.py -t baseline_justjson.j2  -i 100
-RUNNING
+    problem  all_correct_rate  at_least_one_correct_rate  total_runs  all_correct  at_least_one_correct
+0  0d3d703e              0.46                       0.55         100           46                    55
+1  08ed6ac7              0.41                       0.41         100           41                    41
+2  9565186b              0.00                       0.11         100            0                    11
+3  178fcbfb              0.17                       0.21         100           17                    21
+4  0a938d79              0.00                       0.00         100            0                     0
+Experiment took 1:52:37.985472
 
 %run run_all_problems.py -t baseline_wplaingrid.j2  -i 100
-RUNNING
+Results Summary:
+    problem  all_correct_rate  at_least_one_correct_rate  total_runs  all_correct  at_least_one_correct
+0  0d3d703e              0.67                       0.75         100           67                    75
+1  08ed6ac7              0.20                       0.20         100           20                    20
+2  9565186b              0.00                       0.07         100            0                     7
+3  178fcbfb              0.14                       0.15         100           14                    15
+4  0a938d79              0.00                       0.00         100            0                     0
+Experiment took 1:59:15.627492
 
 TODO maybe?
-baseline_wquotedgridcsv_excel.j2
+%run run_all_problems.py -t baseline_wquotedgridcsv_excel.j2  -i 100
+RUNNING
+
 
 Just json, no grid repr, method1
 #%run run_all_problems.py -t baseline_justjson.j2  -i 30

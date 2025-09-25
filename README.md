@@ -44,9 +44,15 @@ The `run_code.execute_transform` module builds a `utils.RunResult` result, this 
 ```
 # run the basic method with the default prompt for 5 iterations
 python method1_text_prompt.py --help # see the arg description
-python method1_text_prompt.py -p 0d3d703e -i 5
+python method1_text_prompt.py -p 0d3d703e -i 5  # maybe 2-3 minutes and 20% correctness?
 # this is equivalent to the fully formed version which selects the prompt and model to run
 # python method1_text_prompt.py -p 0d3d703e -t baseline_justjson.j2 -m openrouter/deepseek/deepseek-chat-v3-0324 -i 5
+# you could try looking at experiment.log logfile (detailed at the top of stdout when you run method1)
+# you could try opening sqlite3 (if installed), detailed under the logfile line
+sqlite3> .schema
+sqlite3> select code from experiments where all_train_transformed_correctly=true;
+sqlite3> select final_explanation from experiments where all_train_transformed_correctly=false;
+Note if it got an explanation right, but wrote bad code (e.g. with a SyntaxError), then it won't transform correctly
 
 # In method1's run_experiment function we receive an object after trying a proposed solution
 # rr_train is a tuple of (RunResult, ExecutionOutcome, exception_message)
