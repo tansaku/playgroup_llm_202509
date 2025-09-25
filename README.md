@@ -82,6 +82,14 @@ now open the logs and follow them - watch the growing set of (5) explanations an
 is this a good direction?
 ```
 
+### hinting - use method1 again on a copy of a prompt
+
+```
+in prompts/ copy e.g. baseline_wquotedgridcsv_excel.j2 (a good one)
+we'll discuss what we could add...
+python method1_text_prompt.py -p 9565186b -t your_hinted_prompt.j2 -i 3
+```
+
 ### thoughts
 
 * is the baseline representation suboptimal? how could it be improved? look in `representations.py` and extend?

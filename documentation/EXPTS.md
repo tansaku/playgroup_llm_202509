@@ -34,7 +34,7 @@ Experiment took 1:59:00.945262
 
 # Use of Reflexion
  
-## first with an easy problem, reflexion 3 and 5 iterations vs 1 (above)
+## first with an easy problem, reflexion 3 and 5 iterations vs 1 (above), plain grid
 
 
 %run method2_reflexion.py -t reflexion.j2 -p 08ed6ac7 -i 100
@@ -53,7 +53,27 @@ Provider counts: Counter({'Lambda': 616})
 Max token usage on a call was 4,242, Median token usage on a call was 2,357
 Experiment took 2:12:19.665814
 
-## then on a harder problem which scores 0 in the non-reflexion scenario
+%run method2_reflexion.py -t reflexion.j2 -p 08ed6ac7 -i 10
+REFLEXION=7
+Total success: 8, total n: 10, percentage: 80%
+95% (1.96 SD) CI error interval: 2.48 i.e. 5.52 to 10.48
+Provider counts: Counter({'Lambda': 64})
+Max token usage on a call was 4,582, Median token usage on a call was 2,482
+Experiment took 0:12:24.830306
+Full logs in:
+experiments/exp_20250925T184719/experiment.log
+
+%run method2_reflexion.py -t reflexion.j2 -p 08ed6ac7 -i 10
+REFLEXION=9
+Total success: 10, total n: 10, percentage: 100%
+95% (1.96 SD) CI error interval: 0.00 i.e. 10.00 to 10.00
+Provider counts: Counter({'Lambda': 60})
+Max token usage on a call was 4,660, Median token usage on a call was 2,441
+Experiment took 0:11:14.453969
+Full logs in:
+experiments/exp_20250925T184757/experiment.log
+
+## then on a harder problem which scores 0 in the non-reflexion scenario, strong representation
 
 reflexion 3
 %run method2_reflexion.py -t reflexion_wquotedgridcsv_excel.j2 -p 9565186b -i 20
@@ -76,8 +96,36 @@ python run_code.py -c example_solutions/ex_poor_soln_9565186b_didnotgeneralise.p
 the solution didn't really generalise
 
 reflexion 7
-RUNNING
+Total success: 0, total n: 20, percentage: 0%
+95% (1.96 SD) CI error interval: 0.00 i.e. 0.00 to 0.00
+Provider counts: Counter({'Lambda': 280})
+Max token usage on a call was 5,899, Median token usage on a call was 2,414
+Experiment took 0:59:18.755429
+Full logs in:
+experiments/exp_20250925T153019/experiment.log
 
+reflexion 9
+Total success: 0, total n: 20, percentage: 0%
+95% (1.96 SD) CI error interval: 0.00 i.e. 0.00 to 0.00
+Provider counts: Counter({'Lambda': 360})
+Max token usage on a call was 5,962, Median token usage on a call was 2,514
+Experiment took 1:18:20.896764
+Full logs in:
+experiments/exp_20250925T162142/experiment.log
+
+reflexion 11
+Total success: 2, total n: 20, percentage: 10%
+95% (1.96 SD) CI error interval: 2.63 i.e. -0.63 to 4.63
+Provider counts: Counter({'Lambda': 404})
+Max token usage on a call was 7,404, Median token usage on a call was 2,524
+Experiment took 1:23:51.251955
+Full logs in:
+experiments/exp_20250925T164344/experiment.log
+sqlite3 experiments/exp_20250925T164344/experiments.db
+Total success: 0, total n: 20, percentage: 0%
+Total success: 1, total n: 20, percentage: 5%
+experiments/exp_20250925T183323/experiment.log
+but all these successes are overfitted and have the wrong rule (but they do pass)
 
 ---------------------------
 
