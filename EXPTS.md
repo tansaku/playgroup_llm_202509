@@ -7,6 +7,39 @@ TESTING
 same restul
 
 
+
+Just json, no grid repr, method1
+#%run run_all_problems.py -t baseline_justjson.j2  -i 30
+Results Summary:
+    problem  all_correct_rate  at_least_one_correct_rate  total_runs  all_correct  at_least_one_correct
+0  0d3d703e          0.466667                   0.500000          30           14                    15
+1  08ed6ac7          0.400000                   0.400000          30           12                    12
+2  9565186b          0.000000                   0.066667          30            0                     2
+3  178fcbfb          0.200000                   0.366667          30            6                    11
+4  0a938d79          0.000000                   0.000000          30            0                     0
+Experiment took circa 40 mins
+Provider counts: Counter({'Lambda': 150})
+Max token usage on a call was 8096
+Median token usage on a call was 1892
+
+
+Json & plain grid, method1
+#%run run_all_problems.py -t baseline.j2  -i 30
+Results Summary:
+    problem  all_correct_rate  at_least_one_correct_rate  total_runs  all_correct  at_least_one_correct
+0  0d3d703e          0.633333                   0.666667          30           19                    20
+1  08ed6ac7          0.300000                   0.300000          30            9                     9
+2  9565186b          0.000000                   0.100000          30            0                     3
+3  178fcbfb          0.233333                   0.233333          30            7                     7
+4  0a938d79          0.000000                   0.000000          30            0                     0
+Experiment took 0:09:14.121500
+Provider counts: Counter({'Lambda': 150})
+Max token usage on a call was 7400
+Median token usage on a call was 2049
+
+
+
+
 %run method2_reflexion.py -t reflexion.j2 -p 08ed6ac7 -i 100
 REFLEXION=5
 Total success: 70, total n: 100, percentage: 70%

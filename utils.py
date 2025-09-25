@@ -221,7 +221,7 @@ def make_experiment_folder(root_folder="experiments"):
     return str(full_path)
 
 
-def do_first_setup():
+def do_first_setup(args=None):
     # create an argparse with default args
     # we can manually add any as needed
     parser = add_argument_parser(

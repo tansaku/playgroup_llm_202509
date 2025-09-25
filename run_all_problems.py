@@ -1,7 +1,6 @@
 """Run a set of problems, report on the results"""
 
 import importlib
-import logging
 from collections import Counter
 from datetime import datetime
 
@@ -9,42 +8,34 @@ import pandas as pd
 from dotenv import load_dotenv
 
 import utils
-from config import BREAK_IF_NOT_CHECKED_IN, providers
-from litellm_helper import check_litellm_key
+from utils import (
+    do_first_setup,
+)
 
 # from prompt import get_func_dict, make_prompt
 # from run_code import execute_transform
-
-logger = logging.getLogger("my_logger")
-logger.setLevel(logging.DEBUG)
-
 
 load_dotenv()
 
 
 if __name__ == "__main__":
-    if BREAK_IF_NOT_CHECKED_IN:
-        utils.break_if_not_git_committed()
+    # parser = utils.add_argument_parser(
+    #    template_name=True, model_name=True, iterations=True
+    # )
 
-    parser = utils.add_argument_parser(
-        template_name=True, model_name=True, iterations=True
-    )
+    # parser.add_argument(
+    #    "--module_name",
+    #    type=str,
+    #    nargs="?",
+    #    help="module to import to run run_all_problems"
+    #    " (default: %(default)s))",  # help msg 2 over lines with default
+    #    default="method5_single_prompt",
+    # )
+    # args = parser.parse_args()
+    ##print(args)
 
-    parser.add_argument(
-        "--module_name",
-        type=str,
-        nargs="?",
-        help="module to import to run run_all_problems"
-        " (default: %(default)s))",  # help msg 2 over lines with default
-        default="method5_single_prompt",
-    )
-    args = parser.parse_args()
-    print(args)
-
-    start_dt = datetime.now()
-    logger.info(f"{args=}")
-
-    check_litellm_key(args)
+    start_dt_outer = datetime.now()
+    # logger.info(f"{args=}")
 
     # Slightly harder problems
     # https://arcprize.org/play?task=1caeab9d
@@ -68,11 +59,15 @@ if __name__ == "__main__":
         "9565186b",
         "178fcbfb",
         "0a938d79",
-        "1a07d186",
     ]
+    #    "1a07d186",
+    # ]
     result_rr_trains = []  # list of lists of rr_trains for each problem
 
-    method_module = importlib.import_module(args.module_name)
+    # module_name = args.module_name
+    module_name = "method1_text_prompt"
+    print(f"HARDCODED to use {module_name} <-------------")
+    method_module = importlib.import_module(module_name)
     entry_point = method_module.run_experiment_for_iterations
 
     print(f"Using module: {method_module.__file__}")
@@ -83,14 +78,14 @@ if __name__ == "__main__":
 
     for problem_to_run in all_problems_to_run:
         print(f"Running problem: {problem_to_run}")
+        # ignore the default problems
+        args, experiment_folder, logger, start_dt, db_filename, _ = do_first_setup()
         # load a single problem
         problems = utils.get_examples(problem_to_run)
-
-        model = args.model_name
-
+        method_module.logger = logger
         llm_responses, rr_trains = entry_point(
-            model=model,
-            provider=providers[args.model_name],
+            db_filename,
+            model=args.model_name,
             iterations=args.iterations,
             problems=problems,
             template_name=args.template_name,
@@ -99,7 +94,7 @@ if __name__ == "__main__":
         result_rr_trains.append(rr_trains)
 
     end_dt = datetime.now()
-    dt_delta = end_dt - start_dt
+    dt_delta = end_dt - start_dt_outer
 
     # Create a list to store results for DataFrame
     results_data = []
@@ -126,10 +121,10 @@ if __name__ == "__main__":
             if ran_at_least_one_train_problem_correctly:
                 at_least_one_correct += 1
 
-            indicator = "✅" if ran_all_train_problems_correctly else "❌"
-            print(
-                f"{indicator} On {problem_to_run} {ran_all_train_problems_correctly=} {ran_at_least_one_train_problem_correctly=}"
-            )
+            # indicator = "✅" if ran_all_train_problems_correctly else "❌"
+            # print(
+            #    f"{indicator} On {problem_to_run} {ran_all_train_problems_correctly=} {ran_at_least_one_train_problem_correctly=}"
+            # )
 
         # Add results to our data list
         results_data.append(

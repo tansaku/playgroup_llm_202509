@@ -9,10 +9,11 @@ pytest
 pytest-cov
 pandas==2.3.0
 scipy==1.15.3
-#langchain-core==0.3.76
-#langchain-openai==0.3.33
-#langchain==0.3.27
-#langchain-litellm==0.2.2
+# adding langchain in case I flip over
+langchain-core==0.3.76
+langchain-openai==0.3.33
+langchain==0.3.27
+langchain-litellm==0.2.2
 pre-commit
 # not sure i need with pre-commit
 #isort==6.0.1
