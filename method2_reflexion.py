@@ -130,10 +130,10 @@ def run_experiment(
     llm_responses,
 ):
     func_dict = get_func_dict()
-    REFLEXION_ITERATIONS = 3
-    if REFLEXION_ITERATIONS != 3:
+    REFLEXION_ITERATIONS = 5
+    if REFLEXION_ITERATIONS != 5:
         # useful debug message to ian
-        print(f"---REFLEXION_ITERATIONS is {REFLEXION_ITERATIONS}, not 3")
+        print(f"---REFLEXION_ITERATIONS is {REFLEXION_ITERATIONS}, not 5")
     # we need to store the previous explanations to enable reflexion
     previous_explanations = []
     # we can force the previous explanation part for debugging

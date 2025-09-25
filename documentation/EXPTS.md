@@ -64,7 +64,16 @@ Max token usage on a call was 2,767, Median token usage on a call was 2,204
 Experiment took 0:21:48.178928
 
 reflexion 5
-RUNNING
+%run method2_reflexion.py -t reflexion_wquotedgridcsv_excel.j2 -p 9565186b -i 20
+Total success: 1, total n: 20, percentage: 5%
+95% (1.96 SD) CI error interval: 1.91 i.e. -0.91 to 2.91
+Provider counts: Counter({'Lambda': 198})
+Max token usage on a call was 3,962, Median token usage on a call was 2,300
+Experiment took 0:38:34.153013
+experiments/exp_20250925T152952/experiment.log
+sqlite3 experiments/exp_20250925T152952/experiments.db
+python run_code.py -c example_solutions/ex_poor_soln_9565186b_didnotgeneralise.py
+the solution didn't really generalise
 
 reflexion 7
 RUNNING

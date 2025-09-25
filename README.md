@@ -70,6 +70,18 @@ Note if it got an explanation right, but wrote bad code (e.g. with a SyntaxError
 # rr_train[1] gives an ExecutionOutcome object, for each initial/final pair it shows what the transform function generated
 ``` 
 
+Now compare this to the EXPT (experiments) results - Ian on screen - better prompt sort of gets us further.
+
+How much further could we go?
+
+### run method2 on a harder problem, observe the logs
+
+```
+%run method2_reflexion.py -t reflexion_wquotedgridcsv_excel.j2 -p 9565186b -i 20
+now open the logs and follow them - watch the growing set of (5) explanations and more-complex code solutions
+is this a good direction?
+```
+
 ### thoughts
 
 * is the baseline representation suboptimal? how could it be improved? look in `representations.py` and extend?
