@@ -39,6 +39,15 @@ python run_code.py -p 0d3d703e -c example_solutions/ex_soln_08ed6ac7.py # run th
 
 The `run_code.execute_transform` module builds a `utils.RunResult` result, this tracks if and how many of the example `initial` problems were transformed correctly to the desired `final` states. It also generates an `ExecutionOutcome` object which tracks how each initial grid is transformed, by the code.
 
+## The problems we'll look at
+
+* https://arcprize.org/play?task=0d3d703e  # fixed colour mapping, 3x3 grid min
+* https://arcprize.org/play?task=08ed6ac7  # coloured in order of height, 9x9 grid min
+* https://arcprize.org/play?task=9565186b  # most frequent colour wins, 3x3 grid min
+* https://arcprize.org/play?task=178fcbfb  # dots form coloured lines, 9x9 grid min
+* https://arcprize.org/play?task=0a938d79  # dots form repeated coloured lines, 9x22 grid min
+* https://arcprize.org/play?task=1a07d186  # dots attach to same coloured line, 14x15 grid min (bonus - hard!)
+
 ### run method1 with the default prompt on an easy problem for 5 iterations
 
 ```

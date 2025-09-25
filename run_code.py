@@ -169,6 +169,7 @@ if __name__ == "__main__":
     print(f"Code:\n{code_as_string}")
     print(f"Running on train problems: {len(train_problems)}")
     rr_train = execute_transform(code_as_string, train_problems)
+    print()
     print(rr_train)
     # print(f"Running on test problems: {len(test_problems)}")
     # rr_test = execute_transform(code_as_string, test_problems)

@@ -1,29 +1,14 @@
 
-TESTING
-%run method2_reflexion.py -t reflexion.j2 -p 0d3d703e -i 2
-%run method2_reflexion.py -t reflexion_wquotedgridcsv_excel.j2 -p 0d3d703e -i 2
+# No reflexion, simple prompt
 
-
-%run method1_text_prompt.py -t baseline_justjson.j2 -p  0d3d703e -i 2
-%run method1_text_prompt.py -t baseline_quotedgridcsv.j2 -p  0d3d703e -i 
-
-%run method2_reflexion.py -t reflexion.j2 -p 08ed6ac7 -i 25
-same restul
-
-
-
-%run method1_text_prompt.py -t baseline_wquotedgridcsv_excel.j2 -p 08ed6ac7 -i 100
-(Total success: 23, total n: 100, percentage: 23% without gridcsv excel)
-Total success: 39, total n: 100, percentage: 39%
-95% (1.96 SD) CI error interval: 9.56 i.e. 29.44 to 48.56
-Experiment took 0:15:53.046025
+## json, then with plain grid, then better grid & excel
 
 %run run_all_problems.py -t baseline_justjson.j2  -i 100
     problem  all_correct_rate  at_least_one_correct_rate  total_runs  all_correct  at_least_one_correct
 0  0d3d703e              0.46                       0.55         100           46                    55
 1  08ed6ac7              0.41                       0.41         100           41                    41
-2  9565186b              0.00                       0.11         100            0                    11
-3  178fcbfb              0.17                       0.21         100           17                    21
+2  178fcbfb              0.17                       0.21         100           17                    21
+3  9565186b              0.00                       0.11         100            0                    11
 4  0a938d79              0.00                       0.00         100            0                     0
 Experiment took 1:52:37.985472
 
@@ -32,14 +17,75 @@ Results Summary:
     problem  all_correct_rate  at_least_one_correct_rate  total_runs  all_correct  at_least_one_correct
 0  0d3d703e              0.67                       0.75         100           67                    75
 1  08ed6ac7              0.20                       0.20         100           20                    20
-2  9565186b              0.00                       0.07         100            0                     7
-3  178fcbfb              0.14                       0.15         100           14                    15
+2  178fcbfb              0.14                       0.15         100           14                    15
+3  9565186b              0.00                       0.07         100            0                     7
 4  0a938d79              0.00                       0.00         100            0                     0
 Experiment took 1:59:15.627492
 
-TODO maybe?
 %run run_all_problems.py -t baseline_wquotedgridcsv_excel.j2  -i 100
+    problem  all_correct_rate  at_least_one_correct_rate  total_runs  all_correct  at_least_one_correct
+0  0d3d703e              0.63                       0.67         100           63                    67
+1  08ed6ac7              0.38                       0.38         100           38                    38
+2  178fcbfb              0.27                       0.35         100           27                    35
+3  9565186b              0.00                       0.22         100            0                    22
+4  0a938d79              0.00                       0.02         100            0                     2
+Experiment took 1:59:00.945262
+
+
+# Use of Reflexion
+ 
+## first with an easy problem, reflexion 3 and 5 iterations vs 1 (above)
+
+
+%run method2_reflexion.py -t reflexion.j2 -p 08ed6ac7 -i 100
+REFLEXION=3
+Total success: 54, total n: 100, percentage: 54%
+95% (1.96 SD) CI error interval: 9.77 i.e. 44.23 to 63.77
+Provider counts: Counter({'Lambda': 466})
+Max token usage on a call was 3,853, Median token usage on a call was 2,305
+Experiment took 1:38:15.071390
+
+%run method2_reflexion.py -t reflexion.j2 -p 08ed6ac7 -i 100
+REFLEXION=5
+Total success: 70, total n: 100, percentage: 70%
+95% (1.96 SD) CI error interval: 8.98 i.e. 61.02 to 78.98
+Provider counts: Counter({'Lambda': 616})
+Max token usage on a call was 4,242, Median token usage on a call was 2,357
+Experiment took 2:12:19.665814
+
+## then on a harder problem which scores 0 in the non-reflexion scenario
+
+reflexion 3
+%run method2_reflexion.py -t reflexion_wquotedgridcsv_excel.j2 -p 9565186b -i 20
+Total success: 0, total n: 20, percentage: 0%
+95% (1.96 SD) CI error interval: 0.00 i.e. 0.00 to 0.00
+Provider counts: Counter({'Lambda': 120})
+Max token usage on a call was 2,767, Median token usage on a call was 2,204
+Experiment took 0:21:48.178928
+
+reflexion 5
 RUNNING
+
+reflexion 7
+RUNNING
+
+
+---------------------------
+
+%run method1_text_prompt.py -t baseline_wquotedgridcsv_excel.j2 -p 08ed6ac7 -i 100
+(Total success: 23, total n: 100, percentage: 23% without gridcsv excel)
+Total success: 39, total n: 100, percentage: 39%
+95% (1.96 SD) CI error interval: 9.56 i.e. 29.44 to 48.56
+Experiment took 0:15:53.046025
+
+is a 2-part prompt any different? no obvious difference within CI
+%run method1_text_prompt_in2part2.py -t baseline_wquotedgridcsv_excel_for2parts.j2 -p 08ed6ac7 -i 100
+Total success: 16, total n: 100, percentage: 16%
+95% (1.96 SD) CI error interval: 7.19 i.e. 8.81 to 23.19
+Provider counts: Counter({'Lambda': 200})
+Max token usage on a call was 5,591, Median token usage on a call was 4,329
+Experiment took 0:24:56.579797
+
 
 
 Just json, no grid repr, method1
@@ -74,22 +120,6 @@ Median token usage on a call was 2049
 
 
 
-%run method2_reflexion.py -t reflexion.j2 -p 08ed6ac7 -i 100
-REFLEXION=5
-Total success: 70, total n: 100, percentage: 70%
-95% (1.96 SD) CI error interval: 8.98 i.e. 61.02 to 78.98
-Provider counts: Counter({'Lambda': 616})
-Max token usage on a call was 4,242, Median token usage on a call was 2,357
-Experiment took 2:12:19.665814
-
-
-%run method2_reflexion.py -t reflexion.j2 -p 08ed6ac7 -i 100
-REFLEXION=3
-Total success: 54, total n: 100, percentage: 54%
-95% (1.96 SD) CI error interval: 9.77 i.e. 44.23 to 63.77
-Provider counts: Counter({'Lambda': 466})
-Max token usage on a call was 3,853, Median token usage on a call was 2,305
-Experiment took 1:38:15.071390
 
 (25 its as a smaller trial)
 %run method2_reflexion.py -t reflexion.j2 -p 08ed6ac7 -i 25
@@ -139,3 +169,18 @@ Max token usage on a call was 2,318, Median token usage on a call was 1,746
 Experiment took 3:09:38.266363
 Full logs in:
 experiments/exp_20250922T210837/experiment.log
+
+
+
+
+
+Old TESTING
+%run method2_reflexion.py -t reflexion.j2 -p 0d3d703e -i 2
+%run method2_reflexion.py -t reflexion_wquotedgridcsv_excel.j2 -p 0d3d703e -i 2
+
+
+%run method1_text_prompt.py -t baseline_justjson.j2 -p  0d3d703e -i 2
+%run method1_text_prompt.py -t baseline_quotedgridcsv.j2 -p  0d3d703e -i 
+
+%run method2_reflexion.py -t reflexion.j2 -p 08ed6ac7 -i 25
+same restul
