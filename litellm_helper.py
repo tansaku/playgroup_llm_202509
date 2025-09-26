@@ -13,12 +13,13 @@ providers = {
     # https://openrouter.ai/deepseek/deepseek-chat-v3-0324
     "openrouter/deepseek/deepseek-chat-v3-0324": {
         "order": [
-            "lambda/fp8",  # "Lambda",  # fp8, 164k, 164k
-            # "beseten/fp8", # Beseten, fp8 164k context 131k length
-            # "gmicloud/fp8", # GMiCloud, fp8 164k 164k
-            # "chutes/fp8", # Chutes, fp8 164k 164k
-            # "deepinfra/fp8",  # "DeepInfra",  # fp8, 164k, 164k
-            # "nebius/fp8",  # "Nebius AI Studio",  # fp8 164k, 164k
+            "siliconflow/fp8",  # SiliconFlow, fp8 164k 164k # WORKING GOOD
+            # "nebius/fp8",  # "Nebius AI Studio",  # fp8 164k, 164k WORKING GOOD bit slower
+            # "lambda/fp8",  # "Lambda",  # fp8, 164k, 164k DEAD
+            # "beseten/fp8", # Beseten, fp8 164k context 131k length DEAD
+            # "gmicloud/fp8", # GMiCloud, fp8 164k 164k UNRESP
+            # "chutes/fp8", # Chutes, fp8 164k 164k # did try
+            # "deepinfra/fp8",  # "DeepInfra",  # fp8, 164k, 164k DEAD
         ],
         "allow_fallbacks": False,
     },

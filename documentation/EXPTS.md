@@ -127,6 +127,11 @@ Total success: 1, total n: 20, percentage: 5%
 experiments/exp_20250925T183323/experiment.log
 but all these successes are overfitted and have the wrong rule (but they do pass)
 
+
+Try 0a938d79
+%run method2_reflexion.py -t reflexion_wquotedgridcsv_excel.j2 -p 0a938d79 -i 100
+REFELXION 5, crashed
+
 ---------------------------
 
 %run method1_text_prompt.py -t baseline_wquotedgridcsv_excel.j2 -p 08ed6ac7 -i 100
@@ -241,3 +246,43 @@ Old TESTING
 
 %run method2_reflexion.py -t reflexion.j2 -p 08ed6ac7 -i 25
 same restul
+
+MORNING AT ETC
+
+"siliconflow/fp8", # SiliconFlow, fp8 164k 164k # WORKING
+In [3]: %run method1_text_prompt.py -p 0d3d703e -i 5
+Namespace(problem_name='0d3d703e', template_name='baseline_justjson.j2', iterations=5, model_name='openrouter/deepseek/deepseek-chat-v3-0324')
+tail -n +0 -f experiments/exp_20250926T092419/experiment.log
+sqlite3 experiments/exp_20250926T092419/experiments.db
+100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5/5 [02:28<00:00, 29.79s/it]
+Got 3 of 5 runs correct
+Total success: 3, total n: 5, percentage: 60%
+95% (1.96 SD) CI error interval: 2.15 i.e. 0.85 to 5.15
+Provider counts: Counter({'SiliconFlow': 5})
+Max token usage on a call was 2,828, Median token usage on a call was 1,573
+Experiment took 0:02:30.753910
+Full logs in:
+experiments/exp_20250926T092419/experiment.log
+
+#"nebius/fp8",  # "Nebius AI Studio",  # fp8 164k, 164k WORKING
+# bit slower but working?
+3rd tab
+Got 3 of 5 runs correct
+Total success: 3, total n: 5, percentage: 60%
+95% (1.96 SD) CI error interval: 2.15 i.e. 0.85 to 5.15
+Provider counts: Counter({'Nebius': 5})
+Max token usage on a call was 1,969, Median token usage on a call was 1,422
+Experiment took 0:02:33.164897
+Full logs in:
+experiments/exp_20250926T093054/experiment.log
+
+
+#"gmicloud/fp8", # GMiCloud, fp8 164k 164k UNRESP
+Got 2 of 5 runs correct
+Total success: 2, total n: 5, percentage: 40%
+95% (1.96 SD) CI error interval: 2.15 i.e. -0.15 to 4.15
+Provider counts: Counter({'GMICloud': 5})
+Max token usage on a call was 2,245, Median token usage on a call was 1,487
+Experiment took 0:03:24.833049
+Full logs in:
+experiments/exp_20250926T093155/experiment.log
